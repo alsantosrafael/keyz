@@ -17,6 +17,8 @@ export interface MicFrame {
   chord: PitchClass[] | null
   /** Houve um novo ataque (tecla tocada de novo). */
   attack: boolean
+  /** Presente enquanto calibra o ruído; `progress` chega a 1 no último quadro da calibração. */
+  calibration: { progress: number; noiseLevel: number } | null
 }
 
 /** Sensibilidade 0 → piso de 12× o ruído; 1 → 4× (`12 - 8 * s`). */
@@ -25,6 +27,8 @@ export const snrForSensitivity = (sensitivity: number): number => 12 - 8 * Math.
 /** Uma análise a cada 10 ms de áudio novo. */
 export const HOP_SECONDS = 0.01
 const MIN_FRAMES_BETWEEN_ATTACKS = 8
+/** Quadros de uma calibração de ruído (~1,5 s). */
+export const CALIBRATION_FRAMES = 150
 
 /**
  * Caminho do microfone (porta do `MicrophoneInput.swift`): junta blocos de áudio em janelas,
@@ -44,6 +48,7 @@ export class MicPipeline {
   private envelope = 0
   private framesSinceAttack = Number.MAX_SAFE_INTEGER
   private calibrationFrames = 0
+  private calibrationLevelSum = 0
 
   constructor(
     readonly sampleRate: number,
@@ -62,8 +67,9 @@ export class MicPipeline {
 
   /** Aprende o ruído de fundo de novo (~1,5 s de silêncio). */
   recalibrate(): void {
-    this.chroma.resetNoiseFloor()
-    this.calibrationFrames = 150
+    this.chroma.beginCalibration()
+    this.calibrationFrames = CALIBRATION_FRAMES
+    this.calibrationLevelSum = 0
   }
 
   reset(): void {
@@ -118,8 +124,17 @@ export class MicPipeline {
     // O YIN usa só o trecho final; a análise de espectro usa a janela maior.
     const reading = this.detector.detect(samples.subarray(this.windowSize - this.detector.recommendedBufferSize))
     const calibrating = this.calibrationFrames > 0
-    if (calibrating) this.calibrationFrames -= 1
+    if (calibrating) {
+      this.calibrationFrames -= 1
+      this.calibrationLevelSum += level
+    }
     const spectrum = this.ringFilter.filter(this.chroma.analyze(samples), attack)
+    let calibration: MicFrame['calibration'] = null
+    if (calibrating) {
+      const done = CALIBRATION_FRAMES - this.calibrationFrames
+      calibration = { progress: done / CALIBRATION_FRAMES, noiseLevel: this.calibrationLevelSum / done }
+      if (this.calibrationFrames === 0) this.chroma.endCalibration()
+    }
     const nearest = reading ? readingNote(reading) : null
     const ringingPitch = nearest ? this.ringFilter.ring.has(pitchClass(nearest.note)) : false
     const stable = calibrating ? null : this.stabilizer.feed(ringingPitch ? null : reading)
@@ -134,6 +149,7 @@ export class MicPipeline {
       spectrumNotes: calibrating || !spectrum ? [] : [...spectrum.pitchClasses].sort((a, b) => a - b),
       chord,
       attack,
+      calibration,
     }
   }
 }

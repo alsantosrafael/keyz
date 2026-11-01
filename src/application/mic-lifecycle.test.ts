@@ -47,7 +47,7 @@ describe('ciclo de vida do microfone', () => {
     m.pending[0](ok)
     m.pending[1](ok)
     await Promise.all([first, second])
-    m.frame()?.({ level: 0.05, peak: 0.2, reading: null, stable: { note: 64, cents: 0, frequency: 330 }, spectrumNotes: [], chord: null, attack: false })
+    m.frame()?.({ level: 0.05, peak: 0.2, reading: null, stable: { note: 64, cents: 0, frequency: 330 }, spectrumNotes: [], chord: null, attack: false, calibration: null })
     // Uma única nota: nada de duplicata na tecla.
     expect(hub.activeNotes).toEqual([64])
   })

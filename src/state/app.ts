@@ -55,13 +55,15 @@ interface UiState {
   firstWhite: number
   /** Teclas brancas visíveis (calculado pelo teclado a partir da largura e do zoom). */
   visibleWhites: number
+  /** Máximo de teclas brancas que cabem na largura com alvos de 44 px. */
+  fitWhites: number
   /** Oitava base das teclas do computador (A = Dó dessa oitava). */
   octave: number
   micPrompt: boolean
   settingsOpen: boolean
   changelogOpen: boolean
   setFirstWhite: (i: number) => void
-  setVisibleWhites: (n: number) => void
+  setVisibleWhites: (n: number, fit?: number) => void
   /** Garante que a nota apareça, deslocando a janela o mínimo possível. */
   reveal: (midi: number) => void
   shiftOctave: (delta: number) => void
@@ -75,12 +77,13 @@ const clampFirst = (i: number, visible: number) => Math.max(0, Math.min(WHITE_MI
 export const useUi = create<UiState>((set, get) => ({
   firstWhite: whiteIndexOf(60) - 3,
   visibleWhites: 10,
+  fitWhites: 21,
   octave: 4,
   micPrompt: false,
   settingsOpen: false,
   changelogOpen: false,
   setFirstWhite: (i) => set({ firstWhite: clampFirst(i, get().visibleWhites) }),
-  setVisibleWhites: (n) => set({ visibleWhites: n, firstWhite: clampFirst(get().firstWhite, n) }),
+  setVisibleWhites: (n, fit) => set({ visibleWhites: n, fitWhites: fit ?? get().fitWhites, firstWhite: clampFirst(get().firstWhite, n) }),
   reveal: (midi) => {
     const { firstWhite, visibleWhites } = get()
     const idx = whiteIndexOf(midi)

@@ -48,6 +48,9 @@ export class ChromaAnalyzer {
   private readonly magnitudes: Float64Array
   /** Ruído de fundo por faixa de frequência, aprendido dos quadros em que um pico não se destaca. */
   private noiseFloor: Float64Array
+  /** Em calibração o piso é a média simples dos quadros (o usuário está em silêncio). */
+  private calibrating = false
+  private calibrationCount = 0
 
   constructor(o: ChromaOptions) {
     this.sampleRate = o.sampleRate
@@ -118,6 +121,21 @@ export class ChromaAnalyzer {
     this.noiseFloor.fill(0)
   }
 
+  /**
+   * Começa a calibrar: esquece o piso e passa a aprender a média de cada faixa, sem o teto de
+   * `snr` do aprendizado lento (que travava o piso em 5% do primeiro quadro).
+   */
+  beginCalibration(): void {
+    this.noiseFloor.fill(0)
+    this.calibrationCount = 0
+    this.calibrating = true
+  }
+
+  /** Volta ao aprendizado lento, partindo do piso calibrado. */
+  endCalibration(): void {
+    this.calibrating = false
+  }
+
   private spectrum(frame: Float64Array): Float64Array {
     for (let i = 0; i < this.size; i++) frame[i] *= this.window[i]
     this.fft.forward(frame)
@@ -133,6 +151,11 @@ export class ChromaAnalyzer {
    */
   private updateNoiseFloor(magnitudes: Float64Array): void {
     const floor = this.noiseFloor
+    if (this.calibrating) {
+      this.calibrationCount += 1
+      for (let bin = 0; bin < magnitudes.length; bin++) floor[bin] += (magnitudes[bin] - floor[bin]) / this.calibrationCount
+      return
+    }
     for (let bin = 0; bin < magnitudes.length; bin++) {
       if (floor[bin] === 0 || magnitudes[bin] < floor[bin] * this.snr) floor[bin] = floor[bin] * 0.95 + magnitudes[bin] * 0.05
       else floor[bin] *= 1.002

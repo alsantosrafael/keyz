@@ -20,7 +20,7 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 
 - [ ] **Volume do piano no compressor.** `src/platform/audio.ts` usa `DynamicsCompressor` com razão padrão e sem ganho de compensação. Pela conta dos valores padrão, o volume quase não muda na faixa alta. Medir com `OfflineAudioContext` antes de corrigir.
 - [ ] **Latência com a faixa grave do microfone (27,5 Hz).** O YIN agora analisa uma janela maior. C1 e F#1 são reconhecidos com sinal sintético; a latência e a estabilidade com piano real não foram medidas.
-- [ ] **Piso de ruído do `ChromaAnalyzer`.** O piso começa em 5% do primeiro quadro e só aprende quando o espectro cai abaixo de 5× o piso, então nunca alcança o ruído real de uma sala. O teste Swift `steadyRoomNoiseIsIgnoredAfterLearningIt` passava porque a asserção era vacuosa. Semear o piso com o primeiro quadro quebra o comportamento atual. Precisa de decisão e de teste novo.
+- [ ] **Piso de ruído sem calibração.** A calibração manual agora aprende a média por faixa e funciona. O aprendizado automático inicial continua começando em 5% do primeiro quadro e só aprende abaixo de 5× o piso, então sem calibrar ele não alcança o ruído real da sala. Decidir se semeia o piso com o primeiro quadro ou calibra sozinho ao ligar o microfone.
 - [ ] **Proteção da `main`**: `CLAUDE.md` afirma que a `main` só aceita PR por ruleset. Conferir no GitHub se o ruleset está ativo (a spec antiga dizia que não).
 - [ ] **Matriz de navegadores em CI**: definir quais versões mínimas de Chrome, Edge, Safari e Firefox.
 - [ ] **Axe no Playwright** e **PWA**: previstos como hardening, não feitos.

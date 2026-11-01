@@ -7,7 +7,7 @@ import { gateFeedback, gatePiano } from './gated-ports'
 import { FakeTime, fakeServices } from './test-kit'
 
 const frame = (over: Partial<MicFrame>): MicFrame => ({
-  level: 0.05, peak: 0.2, reading: null, stable: null, spectrumNotes: [], chord: null, attack: false, ...over,
+  level: 0.05, peak: 0.2, reading: null, stable: null, spectrumNotes: [], chord: null, attack: false, calibration: null, ...over,
 })
 
 function setup() {
