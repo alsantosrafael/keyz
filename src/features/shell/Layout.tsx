@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { ChevronDown, Keyboard, Settings } from 'lucide-react'
 import { KeyboardNav, PianoKeyboard } from '../../ui/PianoKeyboard'
@@ -10,6 +10,8 @@ import { ModeBar } from './ModeBar'
 import { SettingsSheet } from './SettingsSheet'
 import { modeForPath } from './modes'
 import { useComputerKeyboard } from './useComputerKeyboard'
+
+const ChangelogSheet = lazy(() => import('./ChangelogSheet'))
 
 /**
  * Casca do app: barra superior, área do modo (rola) e teclado fixo na base. Trocar de modo
@@ -25,6 +27,17 @@ export function Layout() {
   const update = useSettings((s) => s.update)
   const { hub } = getApp()
   const setSettingsOpen = useUi((s) => s.setSettingsOpen)
+  const changelogOpen = useUi((s) => s.changelogOpen)
+  const setChangelogOpen = useUi((s) => s.setChangelogOpen)
+  // Primeiro uso: registra a versão em silêncio. Depois, versão diferente da vista = "novidades" com ponto.
+  useEffect(() => {
+    if (!settings.seenVersion) update({ seenVersion: __APP_VERSION__ })
+  }, [settings.seenVersion, update])
+  const unseen = !!settings.seenVersion && settings.seenVersion !== __APP_VERSION__
+  const openChangelog = () => {
+    setChangelogOpen(true)
+    update({ seenVersion: __APP_VERSION__ })
+  }
   useComputerKeyboard()
 
   useEffect(() => {
@@ -44,11 +57,23 @@ export function Layout() {
             <svg viewBox="0 0 24 24" className="size-5" fill="currentColor"><rect x="3" y="4" width="4.5" height="16" rx="1" /><rect x="9.75" y="4" width="4.5" height="16" rx="1" /><rect x="16.5" y="4" width="4.5" height="16" rx="1" /></svg>
           </span>
           <span className="t-headline">Keyz</span>
+          <button
+            type="button"
+            onClick={openChangelog}
+            aria-label={`Versão ${__APP_VERSION__}. ${unseen ? 'Há novidades. ' : ''}Ver novidades`}
+            className="t-label relative hidden min-h-11 cursor-pointer items-center rounded-full px-2 text-muted hover:text-ink md:inline-flex"
+          >
+            v{__APP_VERSION__}
+            {unseen && <span aria-hidden className="absolute right-0 top-2 size-2 rounded-full bg-track" />}
+          </button>
         </div>
         <div className="mx-auto"><ModeBar variant="top" /></div>
         <div className="ml-auto flex items-center gap-1 md:ml-0">
           <InputPill />
-          <IconButton label="Ajustes" onClick={() => setSettingsOpen(true)}><Settings size={20} strokeWidth={1.75} aria-hidden /></IconButton>
+          <IconButton label={unseen ? 'Ajustes (há novidades)' : 'Ajustes'} onClick={() => setSettingsOpen(true)} className="relative">
+            <Settings size={20} strokeWidth={1.75} aria-hidden />
+            {unseen && <span aria-hidden className="absolute right-2 top-2 size-2 rounded-full bg-track" />}
+          </IconButton>
         </div>
       </header>
 
@@ -90,6 +115,11 @@ export function Layout() {
       </footer>
       <SettingsSheet />
       <MicPrompt />
+      {changelogOpen && (
+        <Suspense fallback={null}>
+          <ChangelogSheet />
+        </Suspense>
+      )}
     </div>
   )
 }

@@ -55,7 +55,7 @@ Passo a passo detalhado (mudança, release, rollback e como tratar os PRs do Dep
 2. A cada merge em `main`, o workflow **Release** abre (ou atualiza) um PR "chore(main): release X.Y.Z" com o `package.json` e o `CHANGELOG.md` novos.
 3. **Mergear esse PR** cria a tag `vX.Y.Z` e a Release no GitHub. É o único passo manual: você decide quando lançar. Como esse PR é criado pelo `GITHUB_TOKEN`, o CI não roda nele: mergeie com *Merge without waiting for requirements to be met* (bypass de admin, só para PRs).
 4. Só então o job `deploy` roda: instala com lockfile congelado, audita dependências, testa, builda e publica na Cloudflare Pages (`keyz-9ir`, branch `main` = produção).
-5. A versão aparece em Ajustes ("Keyz vX.Y.Z").
+5. A versão aparece no cabeçalho e em Ajustes ("Keyz vX.Y.Z"), e a folha *Novidades* mostra o `CHANGELOG.md` dentro do app. Quem atualiza vê um ponto de aviso até abrir as novidades.
 
 O CI (`ci.yml`) roda em todo PR e push: auditoria (`bun audit --audit-level=high`), testes, build e e2e.
 

@@ -123,3 +123,32 @@ test('painel de Ajustes rola até o último item (telas baixas)', async ({ page 
   await last.scrollIntoViewIfNeeded()
   await expect(last).toBeInViewport()
 })
+
+test('mostra a versão e as novidades (changelog) em Ajustes', async ({ page }) => {
+  await page.goto('/livre')
+  await page.getByRole('button', { name: 'Ajustes', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Ajustes' }).getByRole('button', { name: /Ver novidades/ }).click()
+  const dialog = page.getByRole('dialog', { name: 'Novidades' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText(/Você está na versão/)).toBeVisible()
+  await expect(dialog.getByRole('heading', { name: /^v\d+\.\d+\.\d+/ }).first()).toBeVisible()
+  await expect(dialog.getByText('atual')).toBeVisible()
+})
+
+test('versão nova: aviso com ponto até abrir as novidades', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('semeado')) {
+      localStorage.setItem('keyz.settings.v1', JSON.stringify({ seenVersion: '0.0.1' }))
+      sessionStorage.setItem('semeado', '1')
+    }
+  })
+  await page.goto('/livre')
+  const settings = page.getByRole('button', { name: 'Ajustes (há novidades)' })
+  await expect(settings).toBeVisible()
+  await settings.click()
+  await page.getByRole('dialog', { name: 'Ajustes' }).getByRole('button', { name: /Ver novidades/ }).click()
+  await expect(page.getByRole('dialog', { name: 'Novidades' })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Ajustes', exact: true })).toBeVisible()
+})
