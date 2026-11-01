@@ -1,12 +1,40 @@
-node_modules
-dist
+# Dependências e build (web)
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# Testes
+test-results/
+playwright-report/
+coverage/
+
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+
+# Segredos e ambiente
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema e editores
 .DS_Store
-test-results
-playwright-report
-keyz-mac/xcode
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Swift / Xcode (keyz-mac)
 .build/
 xcode/
 xcuserdata/
 *.xcuserstate
 DerivedData/
+
+# Claude Code (configuração local)
 .claude/settings.local.json
