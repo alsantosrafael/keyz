@@ -43,8 +43,8 @@ Se o CI falhar, abra o log (`gh pr checks`, `gh run view --log-failed`), corrija
 | `feat` | minor (0.2.0 → 0.3.0) | Comportamento novo para o usuário |
 | `fix` | patch (0.2.0 → 0.2.1) | Correção de bug ou de segurança |
 | `feat!` ou rodapé `BREAKING CHANGE:` | minor enquanto `0.x`; major depois | Mudança incompatível |
-| `perf`, `refactor`, `docs` | nenhuma até o próximo `feat`/`fix` | Aparecem no CHANGELOG |
-| `chore`, `ci`, `test`, `build` | nenhuma | Não aparecem |
+| `perf`, `refactor` | nenhuma até o próximo `feat`/`fix` | Aparecem no CHANGELOG |
+| `docs`, `chore`, `ci`, `test`, `build` | nenhuma | Não aparecem (o changelog é mostrado ao usuário no app; mudanças internas ficam de fora) |
 
 ## 2. Lançar uma versão
 

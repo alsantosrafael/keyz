@@ -10,7 +10,7 @@
     { "type": "fix", "section": "Correções" },
     { "type": "perf", "section": "Desempenho" },
     { "type": "refactor", "section": "Refatorações" },
-    { "type": "docs", "section": "Documentação", "hidden": false },
+    { "type": "docs", "section": "Documentação", "hidden": true },
     { "type": "chore", "section": "Manutenção", "hidden": true },
     { "type": "ci", "section": "Pipeline", "hidden": true },
     { "type": "test", "section": "Testes", "hidden": true }
