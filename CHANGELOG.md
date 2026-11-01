@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/alsantosrafael/keyz/compare/v0.2.0...v0.2.1) (2026-11-01)
+
+
+### Correções
+
+* **cabecalho:** engrenagem de Ajustes não sai mais da tela ([#15](https://github.com/alsantosrafael/keyz/issues/15)) ([cd7c375](https://github.com/alsantosrafael/keyz/commit/cd7c375c59802e2ec64c932323035256c1e2867e))
+
 ## [0.2.0](https://github.com/alsantosrafael/keyz/compare/v0.1.0...v0.2.0) (2026-11-01)
 
 
