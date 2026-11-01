@@ -86,7 +86,7 @@ curl -sI https://keyz-9ir.pages.dev | grep -iE "content-security|strict-transpor
 
 - **Fixadas por SHA** do commit (com o número da versão em comentário), não por tag: uma tag pode ser movida para código malicioso; um SHA não.
 - **Lista permitida** (Configurações › Actions): só as Actions do próprio GitHub (`actions/*`) e `oven-sh/setup-bun`, `googleapis/release-please-action` e `cloudflare/wrangler-action`. Qualquer outra Action, mesmo numa alteração de workflow, não executa.
-- O Dependabot propõe as atualizações de SHA. **Atualizações maiores (ex.: v4→v7) precisam ser avaliadas antes de mergear.**
+- O Dependabot propõe as atualizações de SHA. **Atualizações maiores (ex.: v4→v7) precisam ser avaliadas antes de mergear** (roteiro em `docs/FLUXO.md`).
 
 ### 2.3 Injeção por conteúdo não confiável
 
@@ -209,7 +209,7 @@ Registrado de propósito, para não parecer que está resolvido.
 | --- | --- | --- |
 | **2FA** no GitHub e na Cloudflare | Conta sequestrada anula todo o resto | Ligar 2FA (de preferência com chave de segurança ou passkey). É a proteção mais importante e só o dono pode ativá-la |
 | Aprovação de revisor nos PRs | Hoje o PR é obrigatório, mas exige 0 aprovações (um mantenedor só) | Exigir 1 aprovação e Code Owners quando houver mais de um mantenedor |
-| Releases e PRs do Dependabot de versão maior | Quebra da pipeline ou código novo não revisado | Avaliar um a um antes de mergear |
+| PRs do Dependabot de versão maior | Quebra da pipeline ou código novo não revisado | Avaliar um a um, conforme o roteiro de `docs/FLUXO.md` |
 | E-mail do autor nos commits | `rafael.profeng@gmail.com` está público no histórico | Usar o e-mail `noreply` do GitHub nos próximos commits; reescrever o histórico só se for realmente necessário |
 | `.claude/skills` (terceiros) no repositório | Licença e superfície desnecessária | Remover do repositório e ignorar a pasta |
 | `style-src 'unsafe-inline'` | Injeção de CSS | Migrar estilos inline para classes ou usar nonce |
