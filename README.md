@@ -48,8 +48,8 @@ Passo a passo detalhado (mudança, release, rollback e como tratar os PRs do Dep
    | `fix:` | patch (`0.1.0` → `0.1.1`) | Correções |
    | `feat:` | minor (`0.1.0` → `0.2.0`) | Novidades |
    | `feat!:` ou rodapé `BREAKING CHANGE:` | minor enquanto `0.x`; major depois | Novidades |
-   | `perf:`, `refactor:`, `docs:` | nenhum até o próximo `feat`/`fix` | sim |
-   | `chore:`, `ci:`, `test:` | nenhum | não |
+   | `perf:`, `refactor:` | nenhum até o próximo `feat`/`fix` | sim |
+   | `docs:`, `chore:`, `ci:`, `test:` | nenhum | não (o changelog aparece para o usuário no app) |
 
    Exemplo: `feat(desafio): contagem regressiva com som` (descrição em português).
 2. A cada merge em `main`, o workflow **Release** abre (ou atualiza) um PR "chore(main): release X.Y.Z" com o `package.json` e o `CHANGELOG.md` novos.
