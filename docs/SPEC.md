@@ -14,7 +14,7 @@ Atualizado em 2026-11-01. Comandos: `bun install --frozen-lockfile`, `bun run te
 | 3. UI base | Concluída | Tokens (escuro e claro), shell, `ModeBar`, `PianoKeyboard` (multitoque, glissando, faixa de navegação), `StaffCard`, `NoteReadout`, `Meter`, `TimeRing`. **Falta** a galeria de componentes e as capturas visuais por estado |
 | 4. Modos | Concluída | Livre, Acordes, Desafio e Entrada |
 | 5. Encantamento | Concluída, sem samples | Fluxo do Desafio do Lobby ao Resumo, `NoteTrail`, sons de jogo, tátil e movimento reduzido |
-| 6. Hardening | Parcial | CI de build e testes, CSP e `_headers` prontos, JS inicial ~141 KB gzip (orçamento: 200 KB), validador de contraste em `src/ui/contrast.test.ts`. **Faltam** axe no Playwright, PWA, a primeira publicação (processo documentado, ainda não executado) e a matriz de navegadores |
+| 6. Hardening | Parcial | CI de build e testes, CSP e `_headers` prontos, JS inicial ~141 KB gzip (orçamento: 200 KB), validador de contraste em `src/ui/contrast.test.ts`. **Faltam** axe no Playwright, PWA, a matriz de navegadores em CI |
 
 Testes: `shared/test` (domínio e DSP), `src/application` (sessões, hub, microfone), `src/ui/contrast.test.ts` (74 pares, dois temas) e `e2e/` (desktop e iPhone 13 simulado: latência da tecla < 16 ms, quatro modos, Desafio do Lobby ao acerto, tema claro, sem rolagem horizontal).
 
@@ -119,7 +119,7 @@ O app importa o domínio como `@keyz/shared`. Os testes de `shared` rodam dentro
 
 - Comandos: `bun install --frozen-lockfile`, `bun run build`, `bun test`.
 - O CI (GitHub Actions) faz só o build: instala com `setup-bun`, roda `bun run build` e publica `dist` como artefato.
-- Sem deploy no CI nesta fase. A publicação na Cloudflare Pages é **manual, por upload direto**: `bun run deploy` (build + `wrangler pages deploy dist --project-name keyz --branch main`), com o passo a passo no README. O projeto Pages não está ligado ao repositório do GitHub.
+- Publicação automatizada: o workflow `release.yml` usa o release-please (SemVer pelos Conventional Commits). Mergear o PR de release cria a tag e a Release e dispara o deploy na Cloudflare Pages (`keyz-9ir`). Passo a passo e segredos no README. `bun run deploy` fica só como saída de emergência.
 - Headers de segurança e o fallback do SPA vão em `public/_headers` e `public/_redirects` e seguem para o `dist/`.
 - O build falha se o lockfile estiver desatualizado, o que mantém as dependências reprodutíveis.
 
@@ -593,7 +593,8 @@ Riscos:
 - [ ] Acordes ganhou sessão de 10 rodadas com resumo (no Swift era contínuo). Confirmar
 - [ ] O Swift cancela o avanço automático do acorde se a mão solta antes de 1,2 s; o web mantém o avanço (timer próprio). Confirmar que é a intenção
 - [x] Repositório: monorepo no `keyz` atual. App web na raiz, `shared/` ao lado e `keyz-mac/` como módulo próprio.
-- [ ] Deploy automático na Cloudflare a partir de qual branch, quando o CI estiver estável? (hoje é manual com `bun run deploy`; a alternativa é ligar o projeto Pages ao GitHub ou usar `wrangler` no CI com `CLOUDFLARE_API_TOKEN`)
+- [x] Deploy automático: só a partir de `main`, quando uma Release é criada (release-please + `wrangler-action`)
+- [ ] Proteção da branch `main` (exigir PR e o CI verde): ainda não aplicada, para não travar os pushes diretos de quem trabalha sozinho
 
 ## Pendências de validação
 

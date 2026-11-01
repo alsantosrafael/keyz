@@ -33,35 +33,74 @@ bun run build    # typecheck + build em dist/
 bun run e2e      # Playwright (precisa de `bunx playwright install chromium`)
 ```
 
-## Publicar na Cloudflare Pages
+## Versões e publicação (SemVer + GitHub Actions)
 
-O app é uma SPA estática (`dist/`). A publicação atual é **manual, por upload direto**, sem ligação entre a Cloudflare e o GitHub.
+A versão segue [SemVer](https://semver.org/lang/pt-BR/) e é calculada automaticamente pelos commits ([Conventional Commits](https://www.conventionalcommits.org/pt-br/)), com o [release-please](https://github.com/googleapis/release-please). Enquanto a versão for `0.x`, mudança incompatível sobe o *minor* e `feat` também; a `1.0.0` é decisão explícita.
 
-Pré-requisitos: conta na Cloudflare e o Wrangler autenticado.
+### Como o fluxo funciona
+
+1. Você faz commits em `main` (ou PRs) com o prefixo do tipo:
+
+   | Prefixo | Efeito na versão | Aparece no CHANGELOG |
+   | --- | --- | --- |
+   | `fix:` | patch (`0.1.0` → `0.1.1`) | Correções |
+   | `feat:` | minor (`0.1.0` → `0.2.0`) | Novidades |
+   | `feat!:` ou rodapé `BREAKING CHANGE:` | minor enquanto `0.x`; major depois | Novidades |
+   | `perf:`, `refactor:`, `docs:` | nenhum até o próximo `feat`/`fix` | sim |
+   | `chore:`, `ci:`, `test:` | nenhum | não |
+
+   Exemplo: `feat(desafio): contagem regressiva com som` (descrição em português).
+2. A cada push em `main`, o workflow **Release** abre (ou atualiza) um PR "chore(main): release X.Y.Z" com o `package.json` e o `CHANGELOG.md` novos.
+3. **Mergear esse PR** cria a tag `vX.Y.Z` e a Release no GitHub. É o único passo manual: você decide quando lançar.
+4. Só então o job `deploy` roda: instala com lockfile congelado, audita dependências, testa, builda e publica na Cloudflare Pages (`keyz-9ir`, branch `main` = produção).
+5. A versão aparece em Ajustes ("Keyz vX.Y.Z").
+
+O CI (`ci.yml`) roda em todo PR e push: auditoria (`bun audit --audit-level=high`), testes, build e e2e.
+
+### Configuração única (já feita no repositório, ou a fazer)
+
+| Item | Estado |
+| --- | --- |
+| Token do Actions só-leitura por padrão; Actions podem abrir PRs | feito |
+| Ambiente `production` no GitHub | feito |
+| Secret scanning, bloqueio de segredos no push, Dependabot (alertas e correções) | feito |
+| Secrets `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` | **a criar** (abaixo) |
+
+Passo a passo completo em [`docs/DEPLOY-SECRETS.md`](docs/DEPLOY-SECRETS.md). Resumo: criar o token em Cloudflare › *My Profile › API Tokens › Create Token › Custom*, com a permissão única **Account › Cloudflare Pages › Edit** e restrito à sua conta. O Account ID aparece em `bunx wrangler whoami`. Guarde no ambiente `production` sem colar em chat ou arquivo (no Claude Code, use o prefixo `!`):
 
 ```sh
-bunx wrangler login          # uma vez; abre o navegador (no Claude Code: `! bunx wrangler login`)
-bunx wrangler whoami         # confere a conta
-bun run deploy               # build + wrangler pages deploy dist --project-name keyz --branch main
+gh secret set CLOUDFLARE_API_TOKEN --env production --repo alsantosrafael/keyz
+gh secret set CLOUDFLARE_ACCOUNT_ID --env production --repo alsantosrafael/keyz
 ```
 
-- Na primeira vez, o Wrangler pergunta se pode criar o projeto `keyz`. Se o nome estiver em uso, a URL vira `keyz-xxx.pages.dev`.
-- `--branch main` publica em produção. Qualquer outro nome de branch gera uma URL de pré-visualização.
-- O token de login expira. Em CI ou terminal sem navegador, use a variável `CLOUDFLARE_API_TOKEN` (permissão *Cloudflare Pages: Edit*) e `CLOUDFLARE_ACCOUNT_ID`. Nunca commite esses valores.
+Para republicar a versão atual sem nova release: *Actions › Release › Run workflow* com `redeploy` marcado.
 
-O que vai junto no `dist/` (vem de `public/`):
+### Publicação manual (emergência)
+
+```sh
+bunx wrangler login     # abre o navegador; o token expira
+bun run deploy          # build + wrangler pages deploy dist (projeto em wrangler.toml)
+```
+
+Prefira a pipeline: ela garante que o que vai ao ar foi testado e tem tag.
+
+### O que vai no `dist/` (vem de `public/`)
 
 | Arquivo | Para quê |
 | --- | --- |
 | `_redirects` | `/* /index.html 200`: rotas diretas como `/desafio` funcionam ao recarregar |
-| `_headers` | CSP restritiva (só a própria origem; `worker-src` com `blob:`), `Permissions-Policy` (microfone e MIDI só na própria origem), `no-referrer`, `nosniff` |
-| `mic-worklet.js` | AudioWorklet do microfone (JS puro, precisa ser servido como arquivo) |
+| `_headers` | Cabeçalhos de segurança (abaixo) e cache imutável em `/assets/*` |
+| `mic-worklet.js` | AudioWorklet do microfone (JS puro, servido como arquivo) |
 
-Depois de publicar, confira:
+### Segurança
 
-1. A URL abre em `/livre` e `/desafio` carrega direto (sem 404).
-2. Cabeçalhos: `curl -sI <url> | grep -i content-security-policy`.
-3. Microfone e MIDI só funcionam em HTTPS (o `pages.dev` já é). O console não deve mostrar bloqueios de CSP.
-4. Em Safari e Firefox o MIDI não existe, e a tela Entrada explica isso.
+- **Cabeçalhos:** CSP restritiva (só a própria origem, sem `blob:`, sem `form-action`, `frame-ancestors 'none'`, `upgrade-insecure-requests`), HSTS, COOP/CORP `same-origin`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer` e `Permissions-Policy` que libera só microfone e MIDI na própria origem. O teste `e2e/csp.spec.ts` aplica esses cabeçalhos reais e falha se o app ou o microfone gerarem qualquer violação.
+- **Cadeia de suprimentos:** as Actions são fixadas por SHA (o comentário ao lado indica a versão) e o Dependabot propõe as atualizações; dependências com lockfile congelado e `bun audit` no CI e no deploy; workflows com permissões mínimas e `persist-credentials: false`.
+- **Dados:** sem backend, contas ou analytics; o áudio nunca sai do aparelho. Vulnerabilidades: veja `SECURITY.md`.
+- Depois de publicar, confira: `curl -sI https://keyz-9ir.pages.dev | grep -i -E "content-security|strict-transport"` e abra `/desafio` direto.
 
-Se o build falhar no deploy, rode `bun run test` e `bun run build` antes. O CI (`.github/workflows/ci.yml`) roda os mesmos passos em cada push.
+## Contribuir e licença
+
+Veja `CONTRIBUTING.md` (PRs com título em Conventional Commits) e `SECURITY.md`. O código do Keyz é licenciado sob a [MIT](LICENSE). Arquivos de terceiros em `.claude/skills/` mantêm as licenças originais deles.
+
+Segurança dos deploys diante de contribuições externas: PRs de forks nunca recebem segredos (o CI usa `pull_request`, não `pull_request_target`) e esperam aprovação do mantenedor para rodar; só `main` acessa o ambiente `production` (onde ficam os tokens da Cloudflare); o `release.yml` só executa no repositório original; e o ruleset `proteger-main` bloqueia force-push, deleção e merge sem CI verde (o dono tem bypass).
