@@ -1,10 +1,12 @@
 {
   "name": "keyz",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
-  "workspaces": ["shared"],
+  "workspaces": [
+    "shared"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
