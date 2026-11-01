@@ -1,0 +1,25 @@
+name: Título do PR
+
+# O PR é mergeado por squash e o título vira o commit: ele precisa seguir Conventional Commits,
+# senão o release-please não calcula a versão. O título é texto não confiável: vai por variável de
+# ambiente, nunca interpolado no script.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Validar título
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if ! printf '%s' "$TITLE" | grep -Eq '^(feat|fix|perf|refactor|docs|chore|ci|test|build|revert)(\([a-z0-9._-]+\))?!?: .+'; then
+            echo "::error::Título inválido. Use 'tipo(escopo): descrição', por exemplo 'fix(desafio): corrige o anel de tempo'."
+            exit 1
+          fi
