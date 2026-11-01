@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/alsantosrafael/keyz/compare/v0.2.1...v0.3.0) (2026-11-01)
+
+
+### Novidades
+
+* **onboarding:** tutorial de acordes e correções de áudio ([#17](https://github.com/alsantosrafael/keyz/issues/17)) ([ca670a3](https://github.com/alsantosrafael/keyz/commit/ca670a34eeaae8c690a48b300b3fe0383a7b946f))
+
 ## [0.2.1](https://github.com/alsantosrafael/keyz/compare/v0.2.0...v0.2.1) (2026-11-01)
 
 
