@@ -14,7 +14,7 @@
     "test:shared": "cd shared && vitest run",
     "test:app": "vitest run",
     "e2e": "playwright test",
-    "deploy": "bun run build && bunx wrangler pages deploy dist --project-name keyz --branch main"
+    "deploy": "bun run build && bunx wrangler pages deploy dist --branch main"
   },
   "dependencies": {
     "@keyz/shared": "workspace:*",

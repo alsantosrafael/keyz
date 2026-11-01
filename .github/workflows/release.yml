@@ -1,0 +1,63 @@
+name: Release
+
+# A cada push em main, o release-please mantém um PR de release com a próxima versão (SemVer) e o
+# CHANGELOG, calculados pelos commits (Conventional Commits). Ao mergear esse PR, ele cria a tag
+# vX.Y.Z e a Release no GitHub; só então o job `deploy` publica na Cloudflare Pages.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      redeploy:
+        description: 'Republicar a versão atual na Cloudflare (sem nova release)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    if: github.repository == 'alsantosrafael/keyz'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - id: rp
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  deploy:
+    needs: release-please
+    if: ${{ github.repository == 'alsantosrafael/keyz' && (needs.release-please.outputs.release_created == 'true' || inputs.redeploy) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || github.ref }}
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+      - run: bun install --frozen-lockfile
+      - run: bun audit --audit-level=high
+      - run: bun run test
+      - run: bun run build
+      - uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=keyz-9ir --branch=main --commit-dirty=true
