@@ -1,0 +1,330 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   Tokens do Keyz (docs/SPEC.md › Design system).
+   Camadas: primitivos → semânticos → de componente.
+   Componentes usam só tokens semânticos ou de componente.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* primitivos: faixas por modo */
+  --p-chords: #b9a2ff;
+  --p-chords-on: #150d33;
+  --p-drill: #ff9f0a;
+  --p-drill-on: #1a1100;
+  --p-free: #2dd4c4;
+  --p-free-on: #00201d;
+  --p-input: #5aa9ff;
+  --p-input-on: #06182e;
+
+  /* semânticos: superfícies */
+  --surface-stage: #0b0c10;
+  --surface-panel: #14161c;
+  --surface-raised: #1d2029;
+  --surface-inset: #07080b;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.22);
+  --text: #f2f4f8;
+  --text-muted: #a9b0c2;
+  --text-faint: #8a92a6;
+  --scrim: rgb(7 8 11 / 0.72);
+
+  /* faixas */
+  --track-chords: var(--p-chords);
+  --on-track-chords: var(--p-chords-on);
+  --track-drill: var(--p-drill);
+  --on-track-drill: var(--p-drill-on);
+  --track-free: var(--p-free);
+  --on-track-free: var(--p-free-on);
+  --track-input: var(--p-input);
+  --on-track-input: var(--p-input-on);
+
+  /* resultado */
+  --success: #30d158;
+  --on-success: #00200b;
+  --failure: #ff6961;
+  --on-failure: #2a0503;
+  --warning: #ffd60a;
+  --on-warning: #231c00;
+  --gold: #ffd60a;
+
+  /* de componente: teclado */
+  --key-white-top: #fbf8ef;
+  --key-white-bottom: #e4dfd0;
+  --key-white-edge: #b7b2a3;
+  --key-white-text: #3d3a33;
+  --key-black-top: #3b3d44;
+  --key-black-bottom: #0a0a0d;
+  --key-black-text: #d9dbe3;
+  --key-black-shine: rgb(255 255 255 / 0.22);
+  --key-bed: #050507;
+
+  /* elevação */
+  --elev-raised: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 1px 2px rgb(0 0 0 / 0.4);
+  --elev-overlay: 0 12px 40px rgb(0 0 0 / 0.55), 0 0 0 1px var(--line);
+
+  /* raio */
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-key: 0 0 6px 6px;
+  --radius-pill: 999px;
+
+  /* movimento */
+  --motion-instant: 0ms;
+  --motion-fast: 120ms;
+  --motion-base: 220ms;
+  --motion-slow: 400ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.6, 0, 0.3, 1);
+
+  /* camadas */
+  --z-content: 0;
+  --z-keyboard: 10;
+  --z-bar: 20;
+  --z-popover: 40;
+  --z-dialog: 100;
+  --z-toast: 1000;
+
+  /* tipografia */
+  --font-ui: -apple-system, system-ui, 'Segoe UI', sans-serif;
+  --font-rounded: ui-rounded, 'SF Pro Rounded', -apple-system, system-ui, sans-serif;
+
+  /* modo atual (troca com data-mode) */
+  --track: var(--track-chords);
+  --on-track: var(--on-track-chords);
+}
+
+:root[data-mode='chords'] { --track: var(--track-chords); --on-track: var(--on-track-chords); }
+:root[data-mode='drill'] { --track: var(--track-drill); --on-track: var(--on-track-drill); }
+:root[data-mode='free'] { --track: var(--track-free); --on-track: var(--on-track-free); }
+:root[data-mode='input'] { --track: var(--track-input); --on-track: var(--on-track-input); }
+
+/* Tema claro: manual (data-theme) ou pelo sistema */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --p-chords: #6d4ae0;
+  --p-chords-on: #ffffff;
+  --p-drill: #a65300;
+  --p-drill-on: #ffffff;
+  --p-free: #007a70;
+  --p-free-on: #ffffff;
+  --p-input: #1f63c6;
+  --p-input-on: #ffffff;
+  --surface-stage: #f4f5f8;
+  --surface-panel: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-inset: #e6e8ee;
+  --line: rgb(15 20 35 / 0.12);
+  --line-strong: rgb(15 20 35 / 0.4);
+  --text: #15171c;
+  --text-muted: #505769;
+  --text-faint: #5f667a;
+  --scrim: rgb(244 245 248 / 0.78);
+  --success: #1b7f37;
+  --on-success: #ffffff;
+  --failure: #c4261d;
+  --on-failure: #ffffff;
+  --warning: #8a6a00;
+  --on-warning: #ffffff;
+  --gold: #8a6a00;
+  --key-bed: #c9ccd6;
+  --elev-raised: 0 1px 2px rgb(15 20 35 / 0.12);
+  --elev-overlay: 0 12px 40px rgb(15 20 35 / 0.25), 0 0 0 1px var(--line);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']):not([data-theme='light']) {
+    color-scheme: light;
+    --p-chords: #6d4ae0;
+    --p-chords-on: #ffffff;
+    --p-drill: #a65300;
+    --p-drill-on: #ffffff;
+    --p-free: #007a70;
+    --p-free-on: #ffffff;
+    --p-input: #1f63c6;
+    --p-input-on: #ffffff;
+    --surface-stage: #f4f5f8;
+    --surface-panel: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-inset: #e6e8ee;
+    --line: rgb(15 20 35 / 0.12);
+    --line-strong: rgb(15 20 35 / 0.4);
+    --text: #15171c;
+    --text-muted: #505769;
+    --text-faint: #5f667a;
+    --scrim: rgb(244 245 248 / 0.78);
+    --success: #1b7f37;
+    --on-success: #ffffff;
+    --failure: #c4261d;
+    --on-failure: #ffffff;
+    --warning: #8a6a00;
+    --on-warning: #ffffff;
+    --gold: #8a6a00;
+    --key-bed: #c9ccd6;
+    --elev-raised: 0 1px 2px rgb(15 20 35 / 0.12);
+    --elev-overlay: 0 12px 40px rgb(15 20 35 / 0.25), 0 0 0 1px var(--line);
+  }
+}
+
+/* Tailwind v4: tokens semânticos viram utilitários (bg-panel, text-muted, border-line...) */
+@theme inline {
+  --color-stage: var(--surface-stage);
+  --color-panel: var(--surface-panel);
+  --color-raised: var(--surface-raised);
+  --color-inset: var(--surface-inset);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-scrim: var(--scrim);
+  --color-track: var(--track);
+  --color-on-track: var(--on-track);
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+  --color-failure: var(--failure);
+  --color-on-failure: var(--on-failure);
+  --color-warning: var(--warning);
+  --color-on-warning: var(--on-warning);
+  --color-gold: var(--gold);
+  --color-chords: var(--track-chords);
+  --color-on-chords: var(--on-track-chords);
+  --color-drill: var(--track-drill);
+  --color-on-drill: var(--on-track-drill);
+  --color-free: var(--track-free);
+  --color-on-free: var(--on-track-free);
+  --color-input: var(--track-input);
+  --color-on-input: var(--on-track-input);
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --font-sans: var(--font-ui);
+}
+
+/* Brilho = cor da faixa/resultado a 35% (só em teclas ativas, anel e medidor) */
+:root {
+  --glow-track: color-mix(in srgb, var(--track) 35%, transparent);
+  --glow-success: color-mix(in srgb, var(--success) 35%, transparent);
+  --glow-failure: color-mix(in srgb, var(--failure) 35%, transparent);
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-stage);
+  color: var(--text);
+  font: 400 16px/1.5 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--track); outline-offset: 2px; }
+
+/* Tipografia (papéis da SPEC) */
+.t-display { font: 700 96px/1 var(--font-rounded); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.t-title { font: 700 28px/1.2 var(--font-ui); }
+.t-headline { font: 600 20px/1.3 var(--font-ui); }
+.t-label { font: 500 14px/1.3 var(--font-ui); }
+.t-caption { font: 500 12px/1.2 var(--font-ui); text-transform: uppercase; letter-spacing: 0.08em; }
+.t-readout { font: 600 20px/1.2 var(--font-rounded); font-variant-numeric: tabular-nums; }
+@media (max-width: 479px) { .t-display { font-size: 64px; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- Animações (só transform e opacity) ---------- */
+@keyframes k-note-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes k-note-in-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes k-target-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes k-ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: var(--ring-len); } }
+@keyframes k-ring-warn { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes k-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+@keyframes k-rise { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-28px); } }
+@keyframes k-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes k-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes k-ring-hide { 0%, 66% { opacity: 1; } 67%, 100% { opacity: 0; } }
+@keyframes k-ring-show { 0%, 66% { opacity: 0; } 67%, 100% { opacity: 1; } }
+@keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes k-block-in { from { opacity: 0; transform: scaleX(0.2); } to { opacity: 1; transform: none; } }
+
+.k-note-in { animation: k-note-in var(--motion-fast) var(--ease-out) both; }
+.k-note-in[data-dir='down'] { animation-name: k-note-in-down; }
+.k-shake { animation: k-shake 220ms var(--ease-out); }
+.k-rise { animation: k-rise 700ms var(--ease-out) forwards; }
+.k-pop { animation: k-pop var(--motion-base) var(--ease-out); }
+.k-sheet { animation: k-sheet-in var(--motion-base) var(--ease-out); }
+.k-fade { animation: k-fade var(--motion-fast) linear both; }
+
+/* ---------- Teclado ---------- */
+.piano-key { -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; position: absolute; border: 0; padding: 0; cursor: pointer; }
+.piano-key[data-white='true'] {
+  background: linear-gradient(to bottom, var(--key-white-top), var(--key-white-bottom));
+  box-shadow: inset 0 3px 3px rgb(0 0 0 / 0.12), inset 0 -2px 0 var(--key-white-edge);
+  color: var(--key-white-text);
+  border-radius: var(--radius-key);
+  transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
+}
+.piano-key[data-white='false'] {
+  background: linear-gradient(to bottom, var(--key-black-top), var(--key-black-bottom) 14%);
+  box-shadow: inset 0 1px 0 var(--key-black-shine), 0 2px 4px rgb(0 0 0 / 0.5);
+  color: var(--key-black-text);
+  border-radius: var(--radius-key);
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+.piano-key[data-pressed] {
+  transform: translateY(2px);
+  transition: none;
+  background: var(--track);
+  color: var(--on-track);
+  box-shadow: 0 0 18px var(--glow-track), inset 0 3px 3px rgb(0 0 0 / 0.18);
+}
+.piano-key[data-pressed][data-source='mic'] { opacity: 0.72; }
+.piano-key[data-state='correct'] { background: var(--success); color: var(--on-success); box-shadow: 0 0 18px var(--glow-success); }
+.piano-key[data-state='wrong'] { background: var(--failure); color: var(--on-failure); box-shadow: 0 0 18px var(--glow-failure); }
+.piano-key[data-state='ghost'] { background: color-mix(in srgb, var(--success) 35%, var(--key-white-top)); color: var(--key-white-text); outline: 2px dashed var(--success); outline-offset: -3px; }
+.piano-key[data-white='false'][data-state='ghost'] { background: var(--success); color: var(--on-success); }
+.piano-key[data-state='chord-member'] { background: color-mix(in srgb, var(--track) 55%, var(--key-white-top)); color: var(--on-track); }
+.piano-key[data-white='false'][data-state='chord-member'] { background: var(--track); }
+.piano-key[data-state='target']::after {
+  content: ''; position: absolute; inset: 3px; border-radius: 4px;
+  border: 3px solid var(--track); box-shadow: 0 0 14px var(--glow-track);
+  animation: k-target-pulse 1.2s var(--ease-in-out) infinite; pointer-events: none;
+}
+.piano-key[disabled] { opacity: 0.4; }
+@media (hover: hover) and (pointer: fine) {
+  .piano-key[data-white='true']:hover:not([data-pressed]) { filter: brightness(0.96); }
+}
+
+/* ---------- Movimento reduzido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .k-shake, .k-pop { animation: none; }
+  .k-rise { animation-duration: 120ms; }
+  .k-note-in, .k-note-in[data-dir='down'], .k-sheet, .k-block-in { animation: k-fade var(--motion-fast) linear both; }
+  .piano-key[data-state='target']::after { animation: none; border-width: 4px; }
+  .ring-pulse { animation: none !important; }
+}
+
+/* Altura do teclado: 160 px no celular em retrato, 220 px nos demais; em paisagem no celular, 45% da altura. */
+.kb-h { height: max(160px, 24dvh); }
+@media (min-width: 480px) { .kb-h { height: max(220px, 26dvh); } }
+@media (orientation: landscape) and (max-height: 500px) { .kb-h { height: 45dvh; } }
+
+/* ---------- Switch: a bolinha desliza (transform) e a trilha muda de cor ---------- */
+.k-switch-track {
+  position: relative; flex-shrink: 0; width: 48px; height: 28px; border-radius: 999px;
+  border: 1px solid var(--line-strong); background: var(--surface-inset);
+  transition: background-color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out);
+}
+.k-switch-knob {
+  position: absolute; left: 2px; top: 2px; width: 22px; height: 22px; border-radius: 999px;
+  background: var(--text-muted);
+  transition: transform var(--motion-base) var(--ease-out), background-color var(--motion-fast) linear;
+}
+.k-switch-input:checked + .k-switch-track { background: var(--track); border-color: var(--track); }
+.k-switch-input:checked + .k-switch-track .k-switch-knob { transform: translateX(20px); background: var(--on-track); }
+.k-switch-input:active + .k-switch-track .k-switch-knob { transform: scaleX(1.12); transform-origin: left; }
+.k-switch-input:checked:active + .k-switch-track .k-switch-knob { transform: translateX(20px) scaleX(1.12); transform-origin: right; }
+.k-switch-input:focus-visible + .k-switch-track { outline: 3px solid var(--track); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .k-switch-knob { transition: background-color var(--motion-fast) linear; }
+}

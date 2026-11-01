@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+test-results
+playwright-report
+keyz-mac/xcode
+.build/
+xcode/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+.claude/settings.local.json

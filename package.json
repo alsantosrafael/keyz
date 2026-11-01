@@ -1,0 +1,43 @@
+{
+  "name": "keyz",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": ["shared"],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "bun run test:shared && bun run test:app",
+    "test:shared": "cd shared && vitest run",
+    "test:app": "vitest run",
+    "e2e": "playwright test",
+    "deploy": "bun run build && bunx wrangler pages deploy dist --project-name keyz --branch main"
+  },
+  "dependencies": {
+    "@keyz/shared": "workspace:*",
+    "lucide-react": "latest",
+    "motion": "latest",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0",
+    "zod": "^4.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "latest",
+    "jsdom": "latest",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "latest",
+    "vitest": "latest"
+  }
+}
