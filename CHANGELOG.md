@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/alsantosrafael/keyz/compare/v0.3.0...v0.3.1) (2026-11-01)
+
+
+### Correções
+
+* **entrada:** calibração de ruído e zoom do teclado ([#19](https://github.com/alsantosrafael/keyz/issues/19)) ([fb60a6b](https://github.com/alsantosrafael/keyz/commit/fb60a6bd4312969a8134c98cd943d33f10e8e31e))
+
 ## [0.3.0](https://github.com/alsantosrafael/keyz/compare/v0.2.1...v0.3.0) (2026-11-01)
 
 
