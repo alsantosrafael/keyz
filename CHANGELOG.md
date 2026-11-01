@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/alsantosrafael/keyz/compare/v0.3.1...v0.4.0) (2026-11-01)
+
+
+### Novidades
+
+* **reportar:** relatório de problema no app que abre issue no GitHub ([#23](https://github.com/alsantosrafael/keyz/issues/23)) ([8e6a441](https://github.com/alsantosrafael/keyz/commit/8e6a441a1a1f95e34701f4f9cb6a7cbbe943bae1))
+
+
+### Correções
+
+* **github:** corrige o modelo de issue de bug ([#22](https://github.com/alsantosrafael/keyz/issues/22)) ([8a1ff7a](https://github.com/alsantosrafael/keyz/commit/8a1ff7a61674cbb8733f04bd6699eeec8ea46736))
+
 ## [0.3.1](https://github.com/alsantosrafael/keyz/compare/v0.3.0...v0.3.1) (2026-11-01)
 
 
