@@ -22,7 +22,11 @@ export class WebFeedback implements FeedbackPort {
   cue(kind: Cue, step = 0): void {
     if (!this.enabled) return
     const ctx = getAudioContext()
-    if (ctx.state !== 'running') return
+    if (ctx.state !== 'running') {
+      // Safari pode interromper o contexto (ligação, troca de aba): tenta retomar para o próximo cue.
+      void ctx.resume().catch(() => {})
+      return
+    }
     const t0 = ctx.currentTime
     for (const tone of CUES[kind]) {
       const osc = ctx.createOscillator()

@@ -55,6 +55,9 @@ export class MicController {
   private noisyFrames = 0
   private watchdog: number | undefined
   private unsubscribe: (() => void) | null = null
+  private lostUnsub: (() => void) | null = null
+  /** Cada chamada de `setEnabled` ganha um número; respostas de chamadas antigas são descartadas. */
+  private generation = 0
 
   constructor(
     private readonly hub: InputHub,
@@ -73,6 +76,7 @@ export class MicController {
   }
 
   async setEnabled(enabled: boolean): Promise<void> {
+    const generation = ++this.generation
     if (!enabled) {
       this.stop()
       this.set({ status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false })
@@ -80,6 +84,8 @@ export class MicController {
     }
     this.set({ ...this.snap, status: { kind: 'starting' } })
     const result = await this.mic.start()
+    // Desligado ou religado enquanto a permissão estava pendente: esta resposta não vale mais.
+    if (generation !== this.generation) return
     if (!result.ok) {
       const status: MicStatus =
         result.reason === 'failed' ? { kind: 'failed', message: result.message ?? 'Falha ao iniciar o áudio.' } : { kind: result.reason }
@@ -90,7 +96,10 @@ export class MicController {
     this.startedAt = this.clock()
     this.lastFrameAt = null
     this.zeroFrames = 0
+    this.unsubscribe?.()
     this.unsubscribe = this.mic.onFrame((f) => this.handle(f))
+    this.lostUnsub?.()
+    this.lostUnsub = this.mic.onLost?.(() => this.deviceLost()) ?? null
     this.runWatchdog()
     this.set({ ...this.snap, deviceName: result.deviceName, status: { kind: 'silence' } })
   }
@@ -102,10 +111,17 @@ export class MicController {
     this.mic.recalibrate()
   }
 
+  private deviceLost(): void {
+    this.stop()
+    this.set({ status: { kind: 'no-device' }, deviceName: null, level: 0, stable: null, noisy: false })
+  }
+
   private stop(): void {
     this.enabled = false
     this.unsubscribe?.()
     this.unsubscribe = null
+    this.lostUnsub?.()
+    this.lostUnsub = null
     if (this.watchdog !== undefined) this.scheduler.clearInterval(this.watchdog)
     this.mic.stop()
     this.releaseNotes()

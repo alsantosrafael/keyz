@@ -33,6 +33,8 @@ export interface MicrophonePort {
   start(): Promise<MicStartResult>
   stop(): void
   onFrame(cb: (f: MicFrame) => void): () => void
+  /** Dispositivo removido durante o uso. */
+  onLost?(cb: () => void): () => void
   setSensitivity(v: number): void
   recalibrate(): void
 }

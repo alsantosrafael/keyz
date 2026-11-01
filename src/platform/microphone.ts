@@ -17,38 +17,73 @@ export class WebMicrophone implements MicrophonePort {
     return () => this.frameListeners.delete(cb)
   }
 
+  /** Geração de `start`/`stop`: um start que termina depois de um `stop` (ou de outro `start`) solta o que criou e sai. */
+  private gen = 0
+  private lostListeners = new Set<() => void>()
+
+  /** O dispositivo sumiu no meio do uso (USB desconectado, permissão revogada). */
+  onLost(cb: () => void): () => void {
+    this.lostListeners.add(cb)
+    return () => this.lostListeners.delete(cb)
+  }
+
   async start(): Promise<MicStartResult> {
     if (!this.supported) return { ok: false, reason: 'unsupported' }
+    this.stop() // começa do zero: solta o que uma chamada anterior deixou
+    const gen = this.gen
+    const current = () => gen === this.gen
+    const cancelled: MicStartResult = { ok: false, reason: 'failed', message: 'Início cancelado.' }
+    let stream: MediaStream
     try {
       // Esses filtros distorcem o sinal de piano.
-      this.stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 },
       })
     } catch (error) {
+      if (!current()) return cancelled
       const name = (error as DOMException).name
       return { ok: false, reason: name === 'NotFoundError' ? 'no-device' : 'denied' }
     }
+    if (!current()) {
+      stream.getTracks().forEach((t) => t.stop())
+      return cancelled
+    }
+    let worker: Worker | null = null
+    let node: AudioWorkletNode | null = null
+    let source: MediaStreamAudioSourceNode | null = null
     try {
       await resumeAudio()
       const ctx = getAudioContext()
       await ctx.audioWorklet.addModule(`${import.meta.env.BASE_URL}mic-worklet.js`)
-      this.worker = new Worker(new URL('./mic.worker.ts', import.meta.url), { type: 'module' })
-      this.worker.onmessage = (e: MessageEvent<MicFrame>) => this.frameListeners.forEach((l) => l(e.data))
+      worker = new Worker(new URL('./mic.worker.ts', import.meta.url), { type: 'module' })
+      worker.onmessage = (e: MessageEvent<MicFrame>) => this.frameListeners.forEach((l) => l(e.data))
       const channel = new MessageChannel()
-      this.worker.postMessage({ type: 'init', sampleRate: ctx.sampleRate, sensitivity: this.sensitivity, port: channel.port1 }, [channel.port1])
-      this.node = new AudioWorkletNode(ctx, 'keyz-mic', { numberOfInputs: 1, numberOfOutputs: 0 })
-      this.node.port.postMessage({ type: 'connect' }, [channel.port2])
-      this.source = ctx.createMediaStreamSource(this.stream)
-      this.source.connect(this.node)
-      const track = this.stream.getAudioTracks()[0]
+      worker.postMessage({ type: 'init', sampleRate: ctx.sampleRate, sensitivity: this.sensitivity, port: channel.port1 }, [channel.port1])
+      node = new AudioWorkletNode(ctx, 'keyz-mic', { numberOfInputs: 1, numberOfOutputs: 0 })
+      node.port.postMessage({ type: 'connect' }, [channel.port2])
+      source = ctx.createMediaStreamSource(stream)
+      source.connect(node)
+      if (!current()) throw new Error('Início cancelado.')
+      this.stream = stream
+      this.worker = worker
+      this.node = node
+      this.source = source
+      const track = stream.getAudioTracks()[0]
+      if (track) track.onended = () => this.lostListeners.forEach((l) => l())
       return { ok: true, deviceName: track?.label || null }
     } catch (error) {
-      this.stop()
+      source?.disconnect()
+      node?.disconnect()
+      node?.port.close()
+      worker?.terminate()
+      stream.getTracks().forEach((t) => t.stop())
+      if (!current()) return cancelled
       return { ok: false, reason: 'failed', message: error instanceof Error ? error.message : String(error) }
     }
   }
 
   stop(): void {
+    this.gen += 1
     this.source?.disconnect()
     this.node?.disconnect()
     this.node?.port.close()
