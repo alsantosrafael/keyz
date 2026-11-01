@@ -33,6 +33,8 @@ export interface MicrophonePort {
   start(): Promise<MicStartResult>
   stop(): void
   onFrame(cb: (f: MicFrame) => void): () => void
+  /** Dispositivo removido durante o uso. */
+  onLost?(cb: () => void): () => void
   setSensitivity(v: number): void
   recalibrate(): void
 }
@@ -55,6 +57,8 @@ export interface Scheduler {
 }
 
 export interface Services {
+  /** Portão de saída: o microfone ignora o que o próprio app está tocando (ver `output-gate.ts`). */
+  outputGate?: import('./output-gate').OutputGate
   piano: PianoPort
   feedback: FeedbackPort
   haptics: HapticsPort

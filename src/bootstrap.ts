@@ -1,4 +1,4 @@
-import { type Services, setServices } from './application'
+import { OutputGate, type Services, gateFeedback, gatePiano, setServices } from './application'
 import { WebFeedback } from './platform/feedback'
 import { WebHaptics } from './platform/haptics'
 import { WebMicrophone } from './platform/microphone'
@@ -10,14 +10,17 @@ import { initApp, setMicrophone, useSettings } from './state/app'
 
 /** Raiz de composição: liga os adaptadores do navegador às portas de `application`. */
 export function bootstrap(): void {
+  const clock = () => performance.now()
+  const outputGate = new OutputGate(clock)
   const services: Services = {
-    piano: new SynthPiano(),
-    feedback: new WebFeedback(),
+    outputGate,
+    piano: gatePiano(new SynthPiano(), outputGate),
+    feedback: gateFeedback(new WebFeedback(), outputGate),
     haptics: new WebHaptics(),
     storage: new LocalStorageAdapter(),
     microphone: new WebMicrophone(),
     midi: new WebMidi(),
-    clock: () => performance.now(),
+    clock,
     scheduler: {
       setTimeout: (fn, ms) => window.setTimeout(fn, ms),
       clearTimeout: (id) => window.clearTimeout(id),

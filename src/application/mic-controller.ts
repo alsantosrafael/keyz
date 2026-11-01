@@ -2,6 +2,7 @@ import { type MicFrame, type PitchClass, type DetectedNote, pitchClass } from '@
 import type { InputHub } from './input-hub'
 import type { Clock, MicrophonePort, Scheduler } from './ports'
 import { Emitter } from './emitter'
+import type { OutputGate } from './output-gate'
 
 export type MicStatus =
   | { kind: 'off' }
@@ -54,12 +55,17 @@ export class MicController {
   private noisyFrames = 0
   private watchdog: number | undefined
   private unsubscribe: (() => void) | null = null
+  private lostUnsub: (() => void) | null = null
+  /** Cada chamada de `setEnabled` ganha um número; respostas de chamadas antigas são descartadas. */
+  private generation = 0
 
   constructor(
     private readonly hub: InputHub,
     private readonly mic: MicrophonePort,
     private readonly clock: Clock,
     private readonly scheduler: Scheduler,
+    /** Enquanto o app está soando, o microfone não gera notas (evita o laço com o próprio som). */
+    private readonly gate?: OutputGate,
   ) {}
 
   get snapshot(): MicSnapshot {
@@ -70,6 +76,7 @@ export class MicController {
   }
 
   async setEnabled(enabled: boolean): Promise<void> {
+    const generation = ++this.generation
     if (!enabled) {
       this.stop()
       this.set({ status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false })
@@ -77,6 +84,8 @@ export class MicController {
     }
     this.set({ ...this.snap, status: { kind: 'starting' } })
     const result = await this.mic.start()
+    // Desligado ou religado enquanto a permissão estava pendente: esta resposta não vale mais.
+    if (generation !== this.generation) return
     if (!result.ok) {
       const status: MicStatus =
         result.reason === 'failed' ? { kind: 'failed', message: result.message ?? 'Falha ao iniciar o áudio.' } : { kind: result.reason }
@@ -87,7 +96,10 @@ export class MicController {
     this.startedAt = this.clock()
     this.lastFrameAt = null
     this.zeroFrames = 0
+    this.unsubscribe?.()
     this.unsubscribe = this.mic.onFrame((f) => this.handle(f))
+    this.lostUnsub?.()
+    this.lostUnsub = this.mic.onLost?.(() => this.deviceLost()) ?? null
     this.runWatchdog()
     this.set({ ...this.snap, deviceName: result.deviceName, status: { kind: 'silence' } })
   }
@@ -99,10 +111,17 @@ export class MicController {
     this.mic.recalibrate()
   }
 
+  private deviceLost(): void {
+    this.stop()
+    this.set({ status: { kind: 'no-device' }, deviceName: null, level: 0, stable: null, noisy: false })
+  }
+
   private stop(): void {
     this.enabled = false
     this.unsubscribe?.()
     this.unsubscribe = null
+    this.lostUnsub?.()
+    this.lostUnsub = null
     if (this.watchdog !== undefined) this.scheduler.clearInterval(this.watchdog)
     this.mic.stop()
     this.releaseNotes()
@@ -121,11 +140,15 @@ export class MicController {
     if (!this.enabled) return
     const now = this.clock()
     this.lastFrameAt = now
+    const muted = this.gate?.busy ?? false
     this.zeroFrames = frame.peak === 0 ? this.zeroFrames + 1 : 0
     // Os estabilizadores recomeçam no ataque, então a confirmação chega alguns quadros depois.
     if (frame.attack) this.pendingAttack = true
 
-    if (this.chords && frame.chord) {
+    if (muted) {
+      this.releaseNotes()
+      this.lastEvidenceAt = null
+    } else if (this.chords && frame.chord) {
       // Acorde: sem oitava confiável, as notas vão para a oitava do Dó central.
       this.lastEvidenceAt = now
       this.setNotes(new Set(frame.chord.map((p) => 60 + p)), true)
@@ -142,7 +165,7 @@ export class MicController {
     this.noisyFrames = frame.level > 0.02 && frame.spectrumNotes.length >= 4 && !frame.stable && !frame.chord ? this.noisyFrames + 1 : 0
     const noisy = this.noisyFrames > 50
 
-    const rawStatus = this.statusFor(frame, noisy)
+    const rawStatus = muted ? { kind: 'hearing' as const } : this.statusFor(frame, noisy)
     this.holdStatus(rawStatus, now)
     if (now - this.lastPublished >= SNAPSHOT_INTERVAL) {
       this.lastPublished = now

@@ -49,7 +49,7 @@ export class MicPipeline {
     readonly sampleRate: number,
     sensitivity = 0.5,
   ) {
-    this.detector = new PitchDetector({ sampleRate, minFrequency: 60 })
+    this.detector = new PitchDetector({ sampleRate, minFrequency: 27.5 })
     this.chroma = new ChromaAnalyzer({ sampleRate, snr: snrForSensitivity(sensitivity) })
     this.windowSize = Math.max(this.detector.recommendedBufferSize, this.chroma.size)
     this.hopSize = Math.floor(sampleRate * HOP_SECONDS)

@@ -1,6 +1,7 @@
 import { Moon, Sun, SunMoon } from 'lucide-react'
 import { Section, Segmented, Sheet, Slider, Switch } from '../../ui/controls'
 import { useSettings, useUi } from '../../state/app'
+import { TutorialSettings } from '../onboarding/TutorialSettings'
 
 export function SettingsSheet() {
   const open = useUi((s) => s.settingsOpen)
@@ -47,6 +48,7 @@ export function SettingsSheet() {
           />
         </div>
       </Section>
+      <TutorialSettings />
       <button
         type="button"
         onClick={() => {

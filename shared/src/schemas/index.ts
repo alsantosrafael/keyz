@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   settings: 'keyz.settings.v1',
   best: 'keyz.best.v1',
   drill: 'keyz.drill.v1',
+  onboarding: 'keyz.onboarding.v1',
 } as const
 
 export const settingsSchema = z.object({

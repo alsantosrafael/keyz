@@ -9,6 +9,7 @@ import { getApp, useDrill } from '../../state/app'
 import { SessionSummary } from '../common/Summary'
 import { fmtSeconds, useMicChords, usePublishKeyStates } from '../common/hooks'
 import { Lobby } from './Lobby'
+import { ModeTip } from '../onboarding/ModeTip'
 import { Round } from './Round'
 
 const NONE = new Map<number, never>()
@@ -26,7 +27,13 @@ export function Desafio() {
   return (
     <div>
       <LiveRegion text={announce} />
-      {screen === 'lobby' && <><h1 className="sr-only">Desafio</h1><Lobby /></>}
+      {screen === 'lobby' && (
+        <>
+          <h1 className="sr-only">Desafio</h1>
+          <ModeTip mode="desafio">Aparece uma nota no teclado. Toque ela antes do tempo acabar. Exemplo: aparece Ré, você toca Ré.</ModeTip>
+          <Lobby />
+        </>
+      )}
       {screen === 'countdown' && <Countdown3 />}
       {(screen === 'round' || screen === 'result') && <Round />}
       {screen === 'summary' && <Summary />}

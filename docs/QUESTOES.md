@@ -1,0 +1,49 @@
+# Questões em aberto
+
+Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as seções "Questões em aberto" e "Pendências de validação" da `docs/SPEC.md` (histórica). Regra: dúvida de produto não se resolve em silêncio no código. Abra uma entrada aqui; quando decidir, mova para "Decididas" e atualize `docs/MODOS.md`, `docs/DESIGN.md` ou `docs/ARQUITETURA.md`.
+
+## Abertas: produto
+
+- [ ] **Tutorial, passo 1 avança sozinho após 3,2 s.** Proposta atual. Confirmar, ou exigir um toque em "Continuar" (mais controle, um clique a mais).
+- [ ] **Convite do tutorial em qualquer tela no primeiro uso.** Proposta atual. Alternativa: convite só dentro do Acordes.
+- [ ] **Dicas de uma linha só para Desafio e Entrada.** Livre usa o cartão de boas-vindas que já existe. Confirmar.
+- [ ] **Estrelas e sequência no Desafio**: limiares 60/80/90% e tempo médio abaixo de metade do tempo da nota. Implementado; confirmar que é a regra final.
+- [ ] **Som de feedback ligado por padrão só no Desafio.** Implementado; confirmar.
+- [ ] **Tema padrão**: seguir o sistema (implementado) ou sempre escuro, como o GarageBand.
+- [ ] **Teclado em celular retrato**: janela de 8 a 10 teclas brancas com a nota-alvo trazida para a janela (`reveal`). Aceitável, ou forçar paisagem no Desafio?
+- [ ] **Acordes: sessão de 10 rodadas com resumo.** O Swift era contínuo. Confirmar.
+- [ ] **Acordes: avanço automático depois de acerto.** O Swift cancelava se a mão soltasse antes de 1,2 s; o web mantém o avanço. Confirmar que é a intenção.
+- [ ] **Piano**: síntese aditiva (atual, sem download) ou samples sob demanda (smplr)? A porta `PianoPort` isola a troca.
+- [ ] **Publicação**: site público (já no ar em `keyz-9ir.pages.dev`), PWA instalável (não feito) ou uso local?
+
+## Abertas: técnicas
+
+- [ ] **Volume do piano no compressor.** `src/platform/audio.ts` usa `DynamicsCompressor` com razão padrão e sem ganho de compensação. Pela conta dos valores padrão, o volume quase não muda na faixa alta. Medir com `OfflineAudioContext` antes de corrigir.
+- [ ] **Latência com a faixa grave do microfone (27,5 Hz).** O YIN agora analisa uma janela maior. C1 e F#1 são reconhecidos com sinal sintético; a latência e a estabilidade com piano real não foram medidas.
+- [ ] **Piso de ruído do `ChromaAnalyzer`.** O piso começa em 5% do primeiro quadro e só aprende quando o espectro cai abaixo de 5× o piso, então nunca alcança o ruído real de uma sala. O teste Swift `steadyRoomNoiseIsIgnoredAfterLearningIt` passava porque a asserção era vacuosa. Semear o piso com o primeiro quadro quebra o comportamento atual. Precisa de decisão e de teste novo.
+- [ ] **Proteção da `main`**: `CLAUDE.md` afirma que a `main` só aceita PR por ruleset. Conferir no GitHub se o ruleset está ativo (a spec antiga dizia que não).
+- [ ] **Matriz de navegadores em CI**: definir quais versões mínimas de Chrome, Edge, Safari e Firefox.
+- [ ] **Axe no Playwright** e **PWA**: previstos como hardening, não feitos.
+
+## Decididas
+
+- [x] **O app Swift (`keyz-mac/`) saiu do repositório** (2026-11-01, pelo mantenedor). Continua no histórico do git (commit `f0d1e34`). A paridade funcional fica com `shared/test/` como referência. Antes, era a questão "o app Swift continua em paralelo?".
+- [x] **Repositório**: monorepo. App web na raiz, `shared/` ao lado.
+- [x] **Deploy automático** só a partir da `main`, quando uma Release é criada (release-please + `wrangler-action`).
+- [x] **Paridade visual com o Swift deixou de ser critério.** A paridade que vale é a funcional (regras, modos, entradas).
+- [x] **Tutorial de acordes, não de um modo inteiro**: acorde é o conceito mais básico. Os outros modos ganham uma linha de exemplo.
+- [x] **Progresso do tutorial persiste no navegador e pode ser completado a qualquer momento**, sem reaparecer sozinho depois de "Agora não" ou de concluir.
+
+## Pendências de validação
+
+Só se valida com o aparelho real ou com ferramenta de medição. Marque quando feito, com a data e o aparelho.
+
+- [ ] **Passagem de nota**: tocar a escala de Dó maior a 120 bpm, com microfone e MIDI, sem tremor nem atraso perceptível no display.
+- [ ] **Multitoque e glissando do teclado** em iPhone e iPad reais.
+- [ ] **Rodada do Desafio a 60 fps** em celular de entrada (trace do Playwright em celular simulado não substitui).
+- [ ] **MIDI** com teclado USB e Bluetooth em Chrome e Edge.
+- [ ] **MIDI, hot-plug**: conectar e desconectar o teclado com a página aberta.
+- [ ] **MIDI em Safari e Firefox**: o aviso da tela de Entrada aparece e não há erro.
+- [ ] **Latência do microfone**: p95 ≤ 80 ms, medida contra o app Swift original no spike (ainda não medida).
+- [ ] **VoiceOver**: notas e resultados anunciados em `aria-live`.
+- [ ] **Tutorial no celular real**: o passo de montar acorde funciona com o teclado na tela e com o toque em várias teclas.
