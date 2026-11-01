@@ -98,6 +98,24 @@ Faça quando o token expirar, quando mudar de máquina por segurança ou se susp
 | Secrets ausentes (`secrets.CLOUDFLARE_API_TOKEN` vazio) | Foram criados no repositório, não no ambiente `production` | Refaça o passo 3 com `--env production` |
 | Job `deploy` é pulado | Não houve release nova e `redeploy` estava desmarcado | É o esperado; mergeie o PR de release ou use o passo 5 |
 
+## 7. Segredo do relatório de problema (Cloudflare, não GitHub)
+
+O endpoint `functions/api/reportar.ts` precisa de um token do GitHub que **vive na Cloudflare**, porque roda lá em tempo de execução. Não é o mesmo token do deploy.
+
+1. Crie o token em <https://github.com/settings/personal-access-tokens/new> (*Fine-grained*): nome `keyz-reportar`, *Repository access* = só `alsantosrafael/keyz`, *Permissions › Repository › Issues* = **Read and write** (nada mais), validade de até 1 ano.
+2. Cadastre como segredo do projeto Pages, lendo o valor escondido:
+
+   ```sh
+   bunx wrangler pages secret put GITHUB_TOKEN --project-name keyz
+   bunx wrangler pages secret put GITHUB_REPO --project-name keyz   # valor: alsantosrafael/keyz
+   ```
+
+3. Crie o rótulo `via-app` (e confira `accessibility`) no repositório: `gh label create via-app --color BFD4F2 --description "Aberta pelo formulário do app"`.
+4. **Limite de taxa (opcional)**: confira em `docs/SEGURANCA.md` 1.5 se dá para criar uma regra no seu plano e domínio. No plano grátis só cabe uma regra de janela curta, e pode não valer em `*.pages.dev`. Sem ela, o risco é aceito; o plano B é o Turnstile.
+5. Teste: envie um relatório pelo app e confira a issue.
+
+Sem o segredo, o endpoint responde 503 e o app mostra "Envio indisponível". Para renovar, repita o passo 1 e o `put`.
+
 ## Para entender o que protege isso
 
 - Só a branch `main` acessa o ambiente `production`; PRs de forks nunca recebem os secrets.

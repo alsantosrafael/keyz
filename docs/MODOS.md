@@ -90,6 +90,10 @@ Tela de configuração, em seções: **Teclado MIDI**, **Microfone**, **Teclado 
 - Sem permissão ou sem suporte, o microfone mostra "Microfone desligado" com a causa e oferece o teclado na tela.
 - Ruído alto: aviso "Ambiente barulhento" na pílula de entrada, sugerindo ajustar a sensibilidade, sem bloquear.
 
+## Reportar um problema ou ideia
+
+Em Ajustes. Folha com tipo (bug, microfone, MIDI, acessibilidade, melhoria, dúvida), título e os campos do tipo. Não exige conta no GitHub. O contexto técnico anexado fica visível em "O que será enviado junto". Ao enviar, o botão mostra "Enviando…" e o resultado é anunciado em `aria-live`: sucesso com o número da issue, ou erro com a causa e o texto preservado para tentar de novo. O e-mail é opcional e avisa que a issue é pública.
+
 **Pílula de entrada** (barra superior): mostra a fonte ativa e um ponto de estado. MIDI conectado vira o padrão. Microfone ouvindo mostra o ponto pulsando com o nível.
 
 ## Onboarding (tutorial de acordes)

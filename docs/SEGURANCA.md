@@ -63,6 +63,21 @@ curl -sI https://keyz-9ir.pages.dev | grep -iE "content-security|strict-transpor
 - Mensagens MIDI também passam por validação Zod antes de chegarem à aplicação.
 - O microfone só liga depois de um gesto do usuário e de uma explicação; o áudio é analisado no aparelho (AudioWorklet + Web Worker) e nunca é enviado.
 - Zero dependência de rede em tempo de execução: nenhuma fonte, CDN ou script externo (por isso `connect-src 'self'`).
+- **Exceção única, por ação explícita**: o relatório de problema. Só sai quando a pessoa clica em "Enviar", depois de ver o contexto anexado, e vai para `POST /api/reportar` no próprio domínio (`connect-src 'self'` basta). Nunca inclui áudio, notas tocadas ou ajustes além de tema e tamanho da tela. A issue resultante é pública.
+
+### 1.5 Endpoint de relatórios — `functions/api/reportar.ts`
+
+Cria issues no repositório em nome do app, então é a única superfície com escrita.
+
+- **Token**: fine-grained, só no repositório `keyz`, só permissão *Issues: Read and write*. Segredo do Cloudflare Pages (`GITHUB_TOKEN`), nunca no GitHub Actions, no código nem no navegador. O repositório vem de `GITHUB_REPO`.
+- **Entrada**: só `POST` com `Origin` igual ao do site, corpo ≤ 16 KB, schema Zod do catálogo, campos com tamanho máximo, tipo e campos desconhecidos recusados, isca contra robôs.
+- **Saída**: menções (`@usuario`) e comentários HTML são neutralizados; o conteúdo entra como texto. Falha do GitHub vira mensagem genérica (sem vazar detalhe).
+- **Limite de taxa: opcional, depende do plano.** O endpoint em si **não limita requisições**; isso é feito (se for possível) na Cloudflare, e hoje não há garantia de que seja:
+  - O plano grátis inclui 1 regra de *Rate limiting* (*Security › WAF › Rate limiting rules*), mas, segundo fontes não oficiais, só com janela de 10 segundos. Dá para limitar rajadas (ex.: 3 requisições por 10 s por IP em `POST /api/reportar`), não volume ao longo de minutos. Conferir os limites no painel.
+  - Regras de WAF parecem valer só para **domínio próprio** na Cloudflare, não para `*.pages.dev`. Sem domínio próprio, esta regra provavelmente não pode ser criada.
+  - O "WAF de conta" que a Cloudflare oferece como add-on é Enterprise e **não** é necessário nem relevante aqui.
+- **Alternativa gratuita e que funciona em `pages.dev`**: Cloudflare Turnstile (captcha sem atrito). Exige a chave do site no formulário, verificar o token no endpoint e liberar `challenges.cloudflare.com` no CSP (`script-src` e `frame-src`). Fica como próximo passo se houver abuso.
+- **Risco aceito por enquanto**: o abuso máximo é encher o repositório de issues. O token só cria issues (não lê código nem altera nada), as issues se fecham em lote com `gh issue close`, e o GitHub tem limites próprios de criação. Se acontecer: revogar o token, ou ligar o Turnstile.
 
 ### 1.4 Dependências
 
@@ -215,7 +230,8 @@ Registrado de propósito, para não parecer que está resolvido.
 | `style-src 'unsafe-inline'` | Injeção de CSS | Migrar estilos inline para classes ou usar nonce |
 | Sem HSTS `preload` | Primeiro acesso por HTTP ainda é possível | Considerar só com domínio próprio |
 | Token da Cloudflare sem filtro de IP e sem expiração obrigatória | Token roubado vale até ser revogado | Definir TTL no token e rotacionar periodicamente |
-| Sem WAF, limite de requisições ou DDoS dedicados | Site estático; a Cloudflare já absorve volume | Avaliar regras da Cloudflare se houver abuso |
+| `/api/reportar` sem limite de taxa garantido | Alguém pode encher o repositório de issues falsas; o WAF grátis é limitado e pode não valer em `pages.dev` | Regra de rajada, se o plano e o domínio permitirem (1.5); caso contrário, Turnstile |
+| Sem DDoS dedicado | Site estático; a Cloudflare já absorve volume | Avaliar regras da Cloudflare se houver abuso |
 | Sem SAST (CodeQL) e sem SBOM | Falhas de código não detectadas automaticamente | Ligar o *code scanning* do GitHub (gratuito em repositório público) |
 | Os testes do deploy só rodam no GitHub | Deploy manual (`bun run deploy`) pula os testes | Preferir a pipeline; o deploy manual é só emergência |
 

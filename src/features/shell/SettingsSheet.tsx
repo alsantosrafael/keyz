@@ -1,4 +1,4 @@
-import { Moon, Sun, SunMoon } from 'lucide-react'
+import { Bug, Moon, Sun, SunMoon } from 'lucide-react'
 import { Section, Segmented, Sheet, Slider, Switch } from '../../ui/controls'
 import { useSettings, useUi } from '../../state/app'
 import { TutorialSettings } from '../onboarding/TutorialSettings'
@@ -49,6 +49,17 @@ export function SettingsSheet() {
         </div>
       </Section>
       <TutorialSettings />
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false)
+          useUi.getState().setReportOpen(true)
+        }}
+        className="t-label mt-4 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control text-muted hover:text-ink"
+      >
+        <Bug size={18} strokeWidth={1.75} aria-hidden /> Reportar um problema ou ideia
+      </button>
+      <br />
       <button
         type="button"
         onClick={() => {
