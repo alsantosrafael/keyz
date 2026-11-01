@@ -51,24 +51,24 @@ export function Layout() {
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[1000] focus:rounded-control focus:bg-track focus:px-4 focus:py-2 focus:text-on-track">
         Pular para o conteúdo
       </a>
-      <header className="z-20 flex items-center gap-3 border-b border-line bg-panel px-4 pt-[env(safe-area-inset-top)] md:px-6">
-        <div className="flex min-h-14 items-center gap-2">
+      <header className="z-20 flex min-w-0 items-center gap-2 border-b border-line bg-panel px-3 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-4 lg:px-6">
+        <div className="flex min-h-14 shrink-0 items-center gap-2">
           <span aria-hidden className="grid size-8 place-items-center rounded-[9px] bg-track text-on-track">
             <svg viewBox="0 0 24 24" className="size-5" fill="currentColor"><rect x="3" y="4" width="4.5" height="16" rx="1" /><rect x="9.75" y="4" width="4.5" height="16" rx="1" /><rect x="16.5" y="4" width="4.5" height="16" rx="1" /></svg>
           </span>
-          <span className="t-headline">Keyz</span>
+          <span className="t-headline hidden min-[400px]:inline">Keyz</span>
           <button
             type="button"
             onClick={openChangelog}
             aria-label={`Versão ${__APP_VERSION__}. ${unseen ? 'Há novidades. ' : ''}Ver novidades`}
-            className="t-label relative hidden min-h-11 cursor-pointer items-center rounded-full px-2 text-muted hover:text-ink md:inline-flex"
+            className="t-label relative hidden min-h-11 cursor-pointer items-center rounded-full px-2 text-muted hover:text-ink lg:inline-flex"
           >
             v{__APP_VERSION__}
             {unseen && <span aria-hidden className="absolute right-0 top-2 size-2 rounded-full bg-track" />}
           </button>
         </div>
-        <div className="mx-auto"><ModeBar variant="top" /></div>
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="mx-auto min-w-0"><ModeBar variant="top" /></div>
+        <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
           <InputPill />
           <IconButton label={unseen ? 'Ajustes (há novidades)' : 'Ajustes'} onClick={() => setSettingsOpen(true)} className="relative">
             <Settings size={20} strokeWidth={1.75} aria-hidden />

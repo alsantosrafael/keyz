@@ -299,7 +299,7 @@ Componentes próprios em SVG ou CSS. Cada um tem estados definidos e é testado 
 
 **`TimeRing`**: anel SVG de tempo (ver Desafio). **`Chip`**: ficha de histórico. **`Button`**: três variantes (primário com a cor da faixa, secundário em `--surface-raised`, fantasma), sempre com 44 px de altura e ícone `lucide` quando ajuda.
 
-**`ModeBar`**: navegação entre os quatro modos. No celular, barra inferior com ícone e rótulo, acima do teclado; no tablet e no desktop, abas no topo. A aba ativa mostra a cor da faixa, com ícone preenchido e sublinhado, nunca só cor. Troca de modo preserva o teclado e a posição dele.
+**`ModeBar`**: navegação entre os quatro modos. No celular e no tablet (< 1024 px), barra inferior com ícone e rótulo, abaixo do teclado; a partir de 1024 px, abas no topo. O cabeçalho nunca pode transbordar: a engrenagem de Ajustes fica sempre visível e clicável (coberto por teste em 360 a 1280 px). A aba ativa mostra a cor da faixa, com ícone preenchido e sublinhado, nunca só cor. Troca de modo preserva o teclado e a posição dele.
 
 Ícones: `lucide-react`, traço de 1,75 px, tamanhos 16, 20 e 24. Nomes finais conferidos na versão instalada.
 
@@ -500,7 +500,7 @@ Vibração: `navigator.vibrate` quando disponível (Android), opcional e deslig�
 
 ### Versão e novidades
 
-- A versão (SemVer) vem do `package.json`, injetada no build (`__APP_VERSION__`), e aparece no cabeçalho (telas ≥ 768 px) e em Ajustes (`Keyz vX.Y.Z · Ver novidades`).
+- A versão (SemVer) vem do `package.json`, injetada no build (`__APP_VERSION__`), e aparece no cabeçalho (telas ≥ 1024 px) e em Ajustes (`Keyz vX.Y.Z · Ver novidades`).
 - A folha **Novidades** mostra o `CHANGELOG.md` gerado pelo release-please, embutido no build e carregado só ao abrir. O texto é lido por `parseChangelog` (`shared/changelog`) e renderizado como texto puro, nunca como HTML.
 - Quando a versão muda desde a última que o usuário viu (`seenVersion` nos ajustes), aparece um ponto no chip da versão e no ícone de Ajustes, com o nome acessível "há novidades". No primeiro uso nada é sinalizado. Abrir as novidades marca a versão como vista.
 - Só entram no changelog os commits `feat`, `fix`, `perf` e `refactor`; `docs`, `chore`, `ci` e `test` ficam de fora, porque o changelog é mostrado ao usuário (config do release-please).
