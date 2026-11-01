@@ -11,6 +11,7 @@ Este arquivo é o ponto de entrada para agentes. Ele aponta para as docs duráve
 | `src/` | App web (Vite + React 19 + TypeScript). Camadas: `platform/`, `application/`, `state/`, `features/`, `ui/` |
 | `shared/` | `@keyz/shared`: domínio puro (música, DSP, exercícios, onboarding, schemas Zod, changelog). Workspace do Bun |
 | `e2e/` | Playwright (desktop e celular simulado) |
+| `functions/` | Cloudflare Pages Functions. Hoje só `api/reportar.ts` (cria a issue do relatório de problema) |
 | `public/` | `_headers` (CSP e cabeçalhos) e `_redirects` (SPA) |
 | `docs/` | Documentação durável (ver mapa abaixo) |
 | `.claude/skills/` | Skills do projeto (design, UI, apresentações) |

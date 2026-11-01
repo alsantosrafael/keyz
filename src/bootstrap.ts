@@ -3,6 +3,7 @@ import { WebFeedback } from './platform/feedback'
 import { WebHaptics } from './platform/haptics'
 import { WebMicrophone } from './platform/microphone'
 import { WebMidi } from './platform/midi'
+import { WebReports } from './platform/report'
 import { SynthPiano } from './platform/piano'
 import { LocalStorageAdapter } from './platform/storage'
 import { getAudioContext } from './platform/audio'
@@ -20,6 +21,7 @@ export function bootstrap(): void {
     storage: new LocalStorageAdapter(),
     microphone: new WebMicrophone(),
     midi: new WebMidi(),
+    reports: new WebReports(),
     clock,
     scheduler: {
       setTimeout: (fn, ms) => window.setTimeout(fn, ms),

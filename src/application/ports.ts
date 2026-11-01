@@ -1,4 +1,4 @@
-import type { MicFrame } from '@keyz/shared'
+import type { MicFrame, Report } from '@keyz/shared'
 
 /** Portas que a camada `platform` implementa. `application` nunca importa o navegador. */
 export type Cue = 'correct' | 'wrong' | 'timeout' | 'star' | 'tick' | 'go' | 'milestone'
@@ -56,6 +56,13 @@ export interface Scheduler {
   clearInterval(id: number): void
 }
 
+export type ReportResult = { ok: true; number: number | null } | { ok: false; message: string }
+
+/** Envia um relatório de problema ao serviço que abre a issue. */
+export interface ReportPort {
+  submit(report: Report): Promise<ReportResult>
+}
+
 export interface Services {
   /** Portão de saída: o microfone ignora o que o próprio app está tocando (ver `output-gate.ts`). */
   outputGate?: import('./output-gate').OutputGate
@@ -65,6 +72,7 @@ export interface Services {
   storage: StoragePort
   microphone: MicrophonePort
   midi: MidiPort
+  reports: ReportPort
   clock: Clock
   scheduler: Scheduler
 }

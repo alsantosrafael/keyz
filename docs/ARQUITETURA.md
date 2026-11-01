@@ -113,9 +113,21 @@ Comandos: `bun run test` (Vitest, `shared` e app), `bun run e2e` (Playwright, de
 
 Paridade: a lógica de domínio foi portada do app Swift com os mesmos nomes de teste e a mesma entrada, com tolerância de 1 cent. O app Swift saiu do repositório; os testes em `shared/test/` passaram a ser a referência.
 
+## Relatório de problema
+
+Qualquer pessoa, sem conta no GitHub, reporta um problema ou ideia em Ajustes › Reportar um problema ou ideia.
+
+- **Catálogo** (`shared/src/reports`): os tipos (bug, microfone, MIDI, acessibilidade, melhoria, dúvida), seus campos, o schema Zod do relatório e `formatIssue`, que monta título, corpo e rótulos. É a única fonte do formulário, da validação e da issue.
+- **Porta** `ReportPort` (`application/ports.ts`), implementada por `platform/report.ts`, que faz `POST /api/reportar` e valida a resposta com Zod.
+- **Tela** `features/reportar/ReportSheet.tsx`, carregada sob demanda. Mostra o contexto técnico que vai junto (versão, modo, entrada, tema, tela, navegador); nunca áudio nem notas.
+- **Endpoint** `functions/api/reportar.ts` (Cloudflare Pages Function): só `POST` do mesmo site, corpo ≤ 16 KB, valida com o mesmo schema, recusa a isca (`website`), neutraliza menções (`@`) e comentários HTML, e chama a API de Issues do GitHub com o token guardado como segredo do Cloudflare. Erros do GitHub viram mensagem genérica.
+- Os modelos de `.github/ISSUE_TEMPLATE` continuam existindo para quem abre issue direto no GitHub; manter os rótulos coerentes com o catálogo.
+
 ## Build e deploy
 
 `bun run build` roda `tsc --noEmit` e `vite build`. O CI (`.github/workflows/ci.yml`) roda auditoria, testes, build e e2e em todo PR. Deploy automático só a partir da `main`, por Release (release-please + Cloudflare Pages). Detalhes em `docs/FLUXO.md` e `docs/PIPELINE.md`.
+
+`wrangler pages deploy` publica também a pasta `functions/`, sem passo extra no workflow.
 
 O JS inicial deve ficar em até 200 KB gzip. Os modos fora do Livre e o changelog são carregados sob demanda (`React.lazy`).
 

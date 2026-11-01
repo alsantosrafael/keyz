@@ -13,6 +13,7 @@ import { modeForPath } from './modes'
 import { useComputerKeyboard } from './useComputerKeyboard'
 
 const ChangelogSheet = lazy(() => import('./ChangelogSheet'))
+const ReportSheet = lazy(() => import('../reportar/ReportSheet'))
 
 /**
  * Casca do app: barra superior, área do modo (rola) e teclado fixo na base. Trocar de modo
@@ -29,6 +30,7 @@ export function Layout() {
   const { hub } = getApp()
   const setSettingsOpen = useUi((s) => s.setSettingsOpen)
   const changelogOpen = useUi((s) => s.changelogOpen)
+  const reportOpen = useUi((s) => s.reportOpen)
   const setChangelogOpen = useUi((s) => s.setChangelogOpen)
   // Primeiro uso: registra a versão em silêncio. Depois, versão diferente da vista = "novidades" com ponto.
   useEffect(() => {
@@ -117,6 +119,11 @@ export function Layout() {
       </footer>
       <SettingsSheet />
       <MicPrompt />
+      {reportOpen && (
+        <Suspense fallback={null}>
+          <ReportSheet />
+        </Suspense>
+      )}
       {changelogOpen && (
         <Suspense fallback={null}>
           <ChangelogSheet />
