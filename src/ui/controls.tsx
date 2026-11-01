@@ -136,7 +136,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className="k-sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-b-none rounded-t-[20px] border border-line bg-panel p-0 text-ink shadow-[var(--elev-overlay)] backdrop:bg-scrim sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-[400px] sm:rounded-none sm:rounded-l-[20px]"
+      className="k-sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-b-none rounded-t-[20px] border border-line bg-panel p-0 text-ink shadow-[var(--elev-overlay)] backdrop:bg-scrim sm:inset-y-0 sm:left-auto sm:right-0 sm:h-dvh sm:max-h-dvh sm:w-[400px] sm:rounded-none sm:rounded-l-[20px]"
     >
       <div className="flex items-center justify-between border-b border-line px-5 py-3">
         <h2 id={titleId} className="t-headline">{title}</h2>

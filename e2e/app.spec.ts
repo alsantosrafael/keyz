@@ -114,3 +114,12 @@ test('esconde e mostra o teclado na tela (a escolha fica guardada)', async ({ pa
   await page.getByRole('button', { name: 'Mostrar teclado' }).click()
   await expect(page.getByRole('group', { name: 'Teclado de piano' })).toBeVisible()
 })
+
+test('painel de Ajustes rola até o último item (telas baixas)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 500 })
+  await page.goto('/livre')
+  await page.getByRole('button', { name: 'Ajustes', exact: true }).click()
+  const last = page.getByRole('dialog', { name: 'Ajustes' }).getByRole('radio', { name: '2×' })
+  await last.scrollIntoViewIfNeeded()
+  await expect(last).toBeInViewport()
+})
