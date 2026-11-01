@@ -52,14 +52,14 @@ export function InputPill() {
         title="Entradas"
       >
         {midi.length ? <Piano size={16} strokeWidth={1.75} aria-hidden /> : <Keyboard size={16} strokeWidth={1.75} aria-hidden />}
-        <span className="max-w-[10ch] truncate sm:max-w-[16ch]">{midi.length ? `MIDI · ${midi[0]}` : 'Teclado'}</span>
+        <span className="hidden max-w-[10ch] truncate min-[400px]:inline xl:max-w-[16ch]">{midi.length ? `MIDI · ${midi[0]}` : 'Teclado'}</span>
         <span aria-hidden className="size-2 rounded-full bg-success" />
       </button>
       {off && (
         <button type="button" onClick={() => setPrompt(true)} className="t-label inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full bg-track px-3 font-semibold text-on-track">
           <Mic size={16} strokeWidth={1.75} aria-hidden />
-          <span className="hidden sm:inline">Ativar microfone</span>
-          <span className="sm:hidden">Mic</span>
+          <span className="hidden xl:inline">Ativar microfone</span>
+          <span className="xl:hidden">Mic</span>
         </button>
       )}
       {!off && (
@@ -70,7 +70,7 @@ export function InputPill() {
           title={micLabel(status.kind)}
         >
           {failed ? <MicOff size={16} strokeWidth={1.75} aria-hidden /> : status.kind === 'noisy' ? <TriangleAlert size={16} strokeWidth={1.75} aria-hidden className="text-warning" /> : <Mic size={16} strokeWidth={1.75} aria-hidden />}
-          <span className="hidden max-w-[20ch] truncate sm:inline">{micLabel(status.kind)}</span>
+          <span className="hidden max-w-[20ch] truncate xl:inline">{micLabel(status.kind)}</span>
           {listening && status.kind !== 'noisy' && <MicDot />}
         </button>
       )}

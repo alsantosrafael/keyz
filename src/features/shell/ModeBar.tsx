@@ -9,7 +9,7 @@ import { MODES } from './modes'
  */
 export function ModeBar({ variant }: { variant: 'bottom' | 'top' }) {
   return (
-    <nav aria-label="Modos" className={cn(variant === 'bottom' ? 'grid grid-cols-4 border-t border-line bg-panel pb-[env(safe-area-inset-bottom)] md:hidden' : 'hidden gap-1 md:flex')}>
+    <nav aria-label="Modos" className={cn(variant === 'bottom' ? 'grid grid-cols-4 border-t border-line bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden' : 'hidden gap-1 lg:flex')}>
       {MODES.map(({ id, path, label, Icon, text }) => (
         <NavLink
           key={id}

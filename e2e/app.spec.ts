@@ -152,3 +152,22 @@ test('versão nova: aviso com ponto até abrir as novidades', async ({ page }) =
   await page.reload()
   await expect(page.getByRole('button', { name: 'Ajustes', exact: true })).toBeVisible()
 })
+
+test('cabeçalho não transborda: a engrenagem fica visível e abre Ajustes em qualquer largura', async ({ page }) => {
+  for (const width of [360, 390, 600, 768, 844, 900, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 700 })
+    await page.goto('/livre')
+    const gear = page.getByRole('button', { name: /^Ajustes/ })
+    await expect(gear, `engrenagem visível em ${width}px`).toBeInViewport({ ratio: 1 })
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    expect(overflow, `sem rolagem horizontal em ${width}px`).toBeLessThanOrEqual(0)
+    await gear.click()
+    const dialog = page.getByRole('dialog', { name: 'Ajustes' })
+    await expect(dialog).toBeVisible()
+    // O painel rola até o fim e mostra a versão.
+    const version = dialog.getByRole('button', { name: /Ver novidades/ })
+    await version.scrollIntoViewIfNeeded()
+    await expect(version, `versão visível em ${width}px`).toBeInViewport()
+    await page.keyboard.press('Escape')
+  }
+})
