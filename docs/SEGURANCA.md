@@ -12,7 +12,7 @@ Como reportar uma vulnerabilidade: `SECURITY.md`.
 | --- | --- |
 | Vazamento de credenciais (token da Cloudflare) | Secrets no GitHub, só no ambiente `production` e só para a `main`; secret scanning e bloqueio no push |
 | PR ou fork malicioso tentando roubar secrets ou publicar | CI com `pull_request` (sem secrets), aprovação para PRs de fora, ambiente restrito à `main`, `release.yml` só no repositório original |
-| Alteração da pipeline por terceiros | `CODEOWNERS`, ruleset da `main`, lista restrita de Actions |
+| Alteração da pipeline ou da `main` por terceiros (ou por engano) | Só PR na `main` com CI verde, `CODEOWNERS`, lista restrita de Actions |
 | Ação de terceiros adulterada (supply chain) | Actions fixadas por SHA, lista permitida, Dependabot, lockfile congelado, `bun audit` |
 | XSS, clickjacking, vazamento de dados no navegador | CSP restritiva e demais cabeçalhos HTTP |
 | Abuso de permissões do navegador (câmera, localização…) | `Permissions-Policy` |
@@ -126,22 +126,34 @@ O job `deploy` só roda quando o release-please cria uma versão (ou por disparo
 
 ## 4. Repositório (GitHub)
 
-### 4.1 Ruleset `proteger-main`
+### 4.1 Ruleset `proteger-main`: a `main` só recebe alterações por Pull Request
 
-Ativo na branch padrão.
+Ativo na branch padrão. **Ninguém dá push direto na `main`, nem o dono.** Toda mudança (inclusive de documentação e a do release-please) entra por PR.
 
 | Regra | Efeito |
 | --- | --- |
-| `deletion` | A `main` não pode ser apagada |
+| `pull_request` | Push direto é barrado; só se entra por PR. Revisões exigidas: 0 (há um único mantenedor, que não consegue aprovar o próprio PR). Conversas precisam estar resolvidas |
+| `required_status_checks`: `test`, `e2e`, `title` | O PR só mergeia com testes, e2e e título válido (Conventional Commits) verdes |
 | `non_fast_forward` | Sem force-push: o histórico não é reescrito |
-| `required_status_checks`: `test`, `e2e`, `title` | Merge sem CI verde e sem título de PR válido é barrado |
-| Bypass: função **admin** (você) | Você continua podendo fazer push direto e mergear o PR de release (que o `GITHUB_TOKEN` cria sem disparar o CI) |
+| `deletion` | A `main` não pode ser apagada |
+| `required_linear_history` | Histórico linear (casa com o merge só por squash) |
 
-Não exige revisão de PR (hoje o projeto tem um único mantenedor). Se entrarem mais pessoas com escrita, ligar *Require a pull request before merging* e *Require review from Code Owners*.
+**Bypass:** a função *admin* (o dono) pode ignorar os requisitos **somente ao mergear um PR** (modo `pull_request`), nunca para dar push direto. Existe por uma razão concreta: o PR de release criado pelo release-please usa o `GITHUB_TOKEN`, e PRs criados assim **não disparam o CI**, então `test`, `e2e` e `title` nunca ficam verdes nele. Para lançar, o dono mergeia esse PR com *Merge without waiting for requirements to be met*. Em qualquer outro PR, espere o CI verde.
+
+Fluxo de trabalho:
+
+```sh
+git switch -c fix/descricao-curta
+# ...commits no formato Conventional Commits...
+git push -u origin fix/descricao-curta
+gh pr create --fill   # o TÍTULO do PR vira o commit na main (squash), então precisa ser tipo(escopo): descrição
+```
+
+Se entrarem mais mantenedores: subir as revisões exigidas para 1 e ligar *Require review from Code Owners*.
 
 ### 4.2 `CODEOWNERS`
 
-Pipeline (`.github/`), cabeçalhos (`public/_headers`), `wrangler.toml`, `SECURITY.md` e `LICENSE` têm o dono como responsável. Passa a ter efeito de bloqueio quando a revisão de Code Owners for exigida (item acima).
+Pipeline (`.github/`), cabeçalhos (`public/_headers`), `wrangler.toml`, `SECURITY.md` e `LICENSE` têm o dono como responsável. Passa a bloquear mudanças nesses arquivos quando a revisão de Code Owners for exigida (4.1, "Se entrarem mais mantenedores").
 
 ### 4.3 Merge e histórico
 
@@ -196,7 +208,7 @@ Registrado de propósito, para não parecer que está resolvido.
 | Lacuna | Risco | O que fazer |
 | --- | --- | --- |
 | **2FA** no GitHub e na Cloudflare | Conta sequestrada anula todo o resto | Ligar 2FA (de preferência com chave de segurança ou passkey). É a proteção mais importante e só o dono pode ativá-la |
-| Revisão de PR obrigatória | Um segundo mantenedor poderia mergear sem revisão | Ligar quando houver mais de um mantenedor |
+| Aprovação de revisor nos PRs | Hoje o PR é obrigatório, mas exige 0 aprovações (um mantenedor só) | Exigir 1 aprovação e Code Owners quando houver mais de um mantenedor |
 | Releases e PRs do Dependabot de versão maior | Quebra da pipeline ou código novo não revisado | Avaliar um a um antes de mergear |
 | E-mail do autor nos commits | `rafael.profeng@gmail.com` está público no histórico | Usar o e-mail `noreply` do GitHub nos próximos commits; reescrever o histórico só se for realmente necessário |
 | `.claude/skills` (terceiros) no repositório | Licença e superfície desnecessária | Remover do repositório e ignorar a pasta |

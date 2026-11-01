@@ -39,7 +39,7 @@ A versão segue [SemVer](https://semver.org/lang/pt-BR/) e é calculada automati
 
 ### Como o fluxo funciona
 
-1. Você faz commits em `main` (ou PRs) com o prefixo do tipo:
+1. Você trabalha em uma branch e abre um **Pull Request** para `main` (a `main` não aceita push direto). O título do PR vira o commit por squash, então ele leva o prefixo do tipo:
 
    | Prefixo | Efeito na versão | Aparece no CHANGELOG |
    | --- | --- | --- |
@@ -50,8 +50,8 @@ A versão segue [SemVer](https://semver.org/lang/pt-BR/) e é calculada automati
    | `chore:`, `ci:`, `test:` | nenhum | não |
 
    Exemplo: `feat(desafio): contagem regressiva com som` (descrição em português).
-2. A cada push em `main`, o workflow **Release** abre (ou atualiza) um PR "chore(main): release X.Y.Z" com o `package.json` e o `CHANGELOG.md` novos.
-3. **Mergear esse PR** cria a tag `vX.Y.Z` e a Release no GitHub. É o único passo manual: você decide quando lançar.
+2. A cada merge em `main`, o workflow **Release** abre (ou atualiza) um PR "chore(main): release X.Y.Z" com o `package.json` e o `CHANGELOG.md` novos.
+3. **Mergear esse PR** cria a tag `vX.Y.Z` e a Release no GitHub. É o único passo manual: você decide quando lançar. Como esse PR é criado pelo `GITHUB_TOKEN`, o CI não roda nele: mergeie com *Merge without waiting for requirements to be met* (bypass de admin, só para PRs).
 4. Só então o job `deploy` roda: instala com lockfile congelado, audita dependências, testa, builda e publica na Cloudflare Pages (`keyz-9ir`, branch `main` = produção).
 5. A versão aparece em Ajustes ("Keyz vX.Y.Z").
 
@@ -105,4 +105,4 @@ Todas as proteções (cabeçalhos HTTP, GitHub, pipeline, segredos), como confer
 
 Veja `CONTRIBUTING.md` (PRs com título em Conventional Commits) e `SECURITY.md`. O código do Keyz é licenciado sob a [MIT](LICENSE). Arquivos de terceiros em `.claude/skills/` mantêm as licenças originais deles.
 
-Segurança dos deploys diante de contribuições externas: PRs de forks nunca recebem segredos (o CI usa `pull_request`, não `pull_request_target`) e esperam aprovação do mantenedor para rodar; só `main` acessa o ambiente `production` (onde ficam os tokens da Cloudflare); o `release.yml` só executa no repositório original; e o ruleset `proteger-main` bloqueia force-push, deleção e merge sem CI verde (o dono tem bypass).
+Segurança dos deploys diante de contribuições externas: PRs de forks nunca recebem segredos (o CI usa `pull_request`, não `pull_request_target`) e esperam aprovação do mantenedor para rodar; só `main` acessa o ambiente `production` (onde ficam os tokens da Cloudflare); o `release.yml` só executa no repositório original; e o ruleset `proteger-main` faz a `main` aceitar só Pull Request com CI verde, sem force-push nem deleção (o dono tem bypass apenas ao mergear PR, nunca para push direto).

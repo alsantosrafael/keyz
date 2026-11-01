@@ -14,7 +14,7 @@ Leia `docs/SPEC.md` antes de mexer em UI ou arquitetura. `keyz-mac/` (app Swift)
 
 ## Pull requests
 
-1. Faça um fork e abra o PR contra `main`.
+1. Faça um fork e abra o PR contra `main` (a `main` não aceita push direto de ninguém, nem do mantenedor).
 2. O **título do PR** precisa seguir [Conventional Commits](https://www.conventionalcommits.org/pt-br/), porque o merge é por squash e a versão (SemVer) sai dele: `feat(livre): ...`, `fix(desafio): ...`, `docs: ...`.
 3. O CI roda testes, build, e2e e auditoria. PRs de fora esperam aprovação do mantenedor para rodar.
 4. Não inclua segredos. Os deploys acontecem só pela pipeline do repositório principal, depois de uma Release.
