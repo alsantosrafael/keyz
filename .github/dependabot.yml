@@ -11,4 +11,11 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    open-pull-requests-limit: 5
     commit-message: { prefix: "ci(deps)" }
+    groups:
+      # Actions do próprio GitHub (checkout, upload-artifact...) viram um PR só.
+      # wrangler-action e release-please ficam separados: tocam o deploy e a release,
+      # e precisam de teste e rollback individuais (ver docs/FLUXO.md).
+      github-owned:
+        patterns: ["actions/*"]
