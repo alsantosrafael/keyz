@@ -3,7 +3,7 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
-  Permissions-Policy: microphone=(self), midi=(self), camera=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=()
+  Permissions-Policy: microphone=(self), midi=(self), camera=(), geolocation=(), payment=()
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
