@@ -1,27 +1,20 @@
 # Keyz
 
-App de prática de piano/teclado. Os quatro modos são **Acordes**, **Desafio**, **Livre** e **Entrada**. As entradas são MIDI, microfone e teclado na tela.
-
-O repositório tem duas partes:
-
-| Pasta | O que é | Estado |
-| --- | --- | --- |
-| `keyz-mac/` | App SwiftUI para iPhone, iPad e Mac (`Keyz`, `KeyzCore`, `Keyz.xcodeproj`) | Atual. Fica intocado até a paridade com a versão web |
-| Raiz (`src/`, `index.html`, `package.json`) e `shared/` | Versão web (Bun, Vite, React, TypeScript); `shared/` é o domínio puro | Funcional; ver "Estado da implementação" na spec |
-| `docs/` | Documentação | `docs/SPEC.md`: spec da migração para a web e do design system |
+App de prática de piano/teclado com quatro modos: **Acordes**, **Desafio**, **Livre** e **Entrada**. As entradas são teclado MIDI, microfone e teclado na tela (ou do computador). Roda no navegador, sem conta e sem servidor: o áudio nunca sai do aparelho.
 
 ## Onde começar
 
-- Quer entender a migração, o design system e a experiência dos modos? Leia `docs/SPEC.md`.
-- Quer rodar o app Swift? Veja `keyz-mac/README.md`.
+| Quer entender... | Leia |
+| --- | --- |
+| Como o código está organizado | [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) |
+| O design, as cores, o movimento e a acessibilidade | [`docs/DESIGN.md`](docs/DESIGN.md) |
+| Como cada modo e o tutorial se comportam | [`docs/MODOS.md`](docs/MODOS.md) |
+| O que ainda está em aberto | [`docs/QUESTOES.md`](docs/QUESTOES.md) |
+| Como trabalhar no repositório (agentes e humanos) | [`CLAUDE.md`](CLAUDE.md) e [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
-## Resumo rápido do app Swift
+`docs/SPEC.md` é o histórico da migração do app Swift para a web. Não é mais a fonte da verdade.
 
-```sh
-cd keyz-mac
-(cd KeyzCore && swift test)
-xcodebuild -project Keyz.xcodeproj -scheme Keyz -destination 'platform=macOS' -derivedDataPath xcode build
-```
+O app Swift original saiu do repositório. Continua no histórico do git (até o commit `f0d1e34`).
 
 ## Rodar a versão web
 

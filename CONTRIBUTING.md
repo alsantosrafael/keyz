@@ -10,7 +10,7 @@ bun run dev
 bun run test && bun run build
 ```
 
-Leia `docs/SPEC.md` antes de mexer em UI ou arquitetura. `keyz-mac/` (app Swift) é a referência de comportamento e não deve ser alterado.
+Antes de mexer em UI, leia `docs/DESIGN.md`. Antes de mexer em arquitetura ou em um modo, leia `docs/ARQUITETURA.md` e `docs/MODOS.md`. Dúvidas de produto vão para `docs/QUESTOES.md`.
 
 ## Pull requests
 

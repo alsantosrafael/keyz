@@ -1,3 +1,5 @@
+> **Histórico, não é mais fonte da verdade.** Este documento é a spec da migração do app Swift para a web (novembro de 2026) e do design system daquele momento. O conteúdo durável foi para `docs/ARQUITETURA.md`, `docs/DESIGN.md`, `docs/MODOS.md` e `docs/QUESTOES.md`. Se algo aqui contradiz o código, o código manda. Não atualize esta spec.
+
 # Keyz Web — Spec da migração
 
 2026-11-01 · @Rafa
