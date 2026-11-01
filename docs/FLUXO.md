@@ -1,6 +1,6 @@
 # Fluxo de trabalho: mudanças, releases e Dependabot
 
-Como uma mudança vai do código até o site no ar, e como tratar os PRs do Dependabot. Atualizado em 2026-11-01. Contexto de segurança: `docs/SEGURANCA.md`. Segredos do deploy: `docs/DEPLOY-SECRETS.md`.
+Como uma mudança vai do código até o site no ar, e como tratar os PRs do Dependabot. Atualizado em 2026-11-01. Como a pipeline funciona por dentro (e como reproduzi-la): `docs/PIPELINE.md`. Contexto de segurança: `docs/SEGURANCA.md`. Segredos do deploy: `docs/DEPLOY-SECRETS.md`.
 
 ## Visão geral
 

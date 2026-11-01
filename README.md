@@ -39,7 +39,7 @@ A versão segue [SemVer](https://semver.org/lang/pt-BR/) e é calculada automati
 
 ### Como o fluxo funciona
 
-Passo a passo detalhado (mudança, release, rollback e como tratar os PRs do Dependabot): [`docs/FLUXO.md`](docs/FLUXO.md).
+Passo a passo detalhado (mudança, release, rollback e como tratar os PRs do Dependabot): [`docs/FLUXO.md`](docs/FLUXO.md). Como a pipeline funciona por dentro e como reproduzi-la em outro projeto: [`docs/PIPELINE.md`](docs/PIPELINE.md).
 
 1. Você trabalha em uma branch e abre um **Pull Request** para `main` (a `main` não aceita push direto). O título do PR vira o commit por squash, então ele leva o prefixo do tipo:
 

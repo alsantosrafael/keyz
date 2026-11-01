@@ -4,7 +4,7 @@ Visão única de todas as proteções do projeto: o que existe, onde está confi
 
 O repositório é **público** de propósito (CI gratuito). Num repositório público, tudo que está nos arquivos, no histórico e nos workflows é visível. A proteção, então, tem dois eixos: **nunca colocar segredo no repositório** e **limitar o que alguém de fora consegue fazer** (rodar código, publicar, alterar a pipeline).
 
-Como reportar uma vulnerabilidade: `SECURITY.md`.
+Como reportar uma vulnerabilidade: `SECURITY.md`. Como a pipeline de CI/CD funciona: `docs/PIPELINE.md`.
 
 ## Modelo de ameaças
 
