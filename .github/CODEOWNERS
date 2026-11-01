@@ -1,0 +1,7 @@
+# Mudanças em pipeline, segurança e licença exigem revisão do dono.
+*                       @alsantosrafael
+/.github/               @alsantosrafael
+/public/_headers        @alsantosrafael
+/wrangler.toml          @alsantosrafael
+/SECURITY.md            @alsantosrafael
+/LICENSE                @alsantosrafael

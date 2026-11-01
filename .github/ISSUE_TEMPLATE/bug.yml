@@ -1,0 +1,16 @@
+name: Bug
+description: Algo não funciona como esperado
+labels: [bug]
+body:
+  - type: textarea
+    id: o-que
+    attributes: { label: O que aconteceu, description: E o que você esperava }
+    validations: { required: true }
+  - type: textarea
+    id: passos
+    attributes: { label: Como reproduzir }
+    validations: { required: true }
+  - type: input
+    id: ambiente
+    attributes: { label: Navegador, sistema e entrada, description: "Ex.: Chrome 130, macOS, teclado MIDI USB" }
+    validations: { required: true }
