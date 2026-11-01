@@ -45,7 +45,7 @@ Camadas, de dentro para fora: `shared` (domínio puro) → `platform` (adaptador
 ## Convenções
 
 - Não commitar nem publicar sem pedido do usuário.
-- Fluxo completo (branch, PR, release, rollback, Dependabot): `docs/FLUXO.md`.
+- Fluxo completo (branch, PR, release, rollback, Dependabot): `docs/FLUXO.md`. Arquitetura da pipeline de CI/CD e roteiro para reproduzi-la: `docs/PIPELINE.md` (atualize-o ao mudar qualquer workflow).
 - **Nunca dar push direto na `main`**: ela só aceita Pull Request (ruleset). Trabalhe em branch (`feat/…`, `fix/…`), abra PR com `gh pr create` e espere o CI. O título do PR vira o commit (squash) e precisa seguir Conventional Commits.
 - Commits seguem Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `ci:`, `test:`, `refactor:`, `perf:`), com a descrição em português: a versão SemVer e o CHANGELOG saem deles (release-please). Lançar = mergear o PR de release; nunca editar versão ou CHANGELOG à mão.
 - Mudou cabeçalho HTTP, workflow, ruleset ou qualquer proteção? Atualize `docs/SEGURANCA.md` no mesmo trabalho.
