@@ -249,7 +249,7 @@ describe('DrillSession', () => {
 
 describe('MicController', () => {
   const frame = (over: Partial<MicFrame>): MicFrame => ({
-    level: 0.05, peak: 0.2, reading: null, stable: null, spectrumNotes: [], chord: null, attack: false, ...over,
+    level: 0.05, peak: 0.2, reading: null, stable: null, spectrumNotes: [], chord: null, attack: false, calibration: null, ...over,
   })
   function setup() {
     const f = fakeServices()
@@ -278,6 +278,20 @@ describe('MicController', () => {
     s.time.advance(100)
     s.send(frame({}))
     expect(s.hub.activeNotes).toEqual([])
+  })
+  it('calibração de ruído mostra progresso e resultado', async () => {
+    const s = setup()
+    await s.ctrl.setEnabled(true)
+    expect(s.ctrl.snapshot.calibration).toEqual({ kind: 'idle' })
+    s.ctrl.recalibrate()
+    expect(s.ctrl.snapshot.calibration).toEqual({ kind: 'running', progress: 0 })
+    s.send(frame({ calibration: { progress: 0.5, noiseLevel: 0.003 } }))
+    expect(s.ctrl.snapshot.calibration).toEqual({ kind: 'running', progress: 0.5 })
+    s.send(frame({ calibration: { progress: 1, noiseLevel: 0.003 } }))
+    expect(s.ctrl.snapshot.calibration).toEqual({ kind: 'done', level: 'quiet' })
+    s.ctrl.recalibrate()
+    s.send(frame({ calibration: { progress: 1, noiseLevel: 0.05 } }))
+    expect(s.ctrl.snapshot.calibration).toEqual({ kind: 'done', level: 'loud' })
   })
   it('acorde confirmado vai para a oitava do Dó central', async () => {
     const s = setup()

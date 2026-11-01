@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Keyboard, Mic, MicOff, Piano, RefreshCw } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Keyboard, Loader2, Mic, MicOff, Piano, RefreshCw } from 'lucide-react'
 import { noteLabel } from '@keyz/shared'
-import type { InputSource } from '../../application'
+import type { CalibrationState, InputSource } from '../../application'
 import { Button, Slider } from '../../ui/controls'
 import { LevelMeter } from '../../ui/Meter'
 import { LiveRegion } from '../../ui/LiveRegion'
@@ -22,6 +22,30 @@ function useLastReceived(source: InputSource): string | null {
     [source, accidental],
   )
   return last
+}
+
+function CalibrationNote({ state }: { state: Exclude<CalibrationState, { kind: 'idle' }> }) {
+  if (state.kind === 'running') {
+    const percent = Math.round(state.progress * 100)
+    return (
+      <div className="mt-3" role="status" aria-live="polite">
+        <p className="t-label flex items-center gap-2"><Loader2 size={16} strokeWidth={1.75} aria-hidden className="motion-safe:animate-spin" /> Calibrando o ruído: fique em silêncio ({percent}%)</p>
+        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-inset" role="progressbar" aria-label="Progresso da calibração" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
+          <div className="h-full origin-left rounded-full bg-track" style={{ transform: `scaleX(${state.progress})` }} />
+        </div>
+      </div>
+    )
+  }
+  const loud = state.level === 'loud'
+  const text =
+    state.level === 'quiet' ? 'Ruído calibrado: ambiente silencioso. O Keyz já ignora o ruído de fundo.'
+    : state.level === 'moderate' ? 'Ruído calibrado: há algum barulho de fundo, mas o Keyz já o ignora.'
+    : 'Ambiente muito barulhento durante a calibração. Tente de novo em silêncio, ou diminua a sensibilidade.'
+  return (
+    <p className={cn('t-label mt-3 flex items-center gap-2', loud && 'text-warning')} role="status" aria-live="polite">
+      {loud ? <AlertTriangle size={16} strokeWidth={1.75} aria-hidden /> : <CheckCircle2 size={16} strokeWidth={1.75} aria-hidden />} {text}
+    </p>
+  )
 }
 
 function Card({ icon, title, status, children, ok }: { icon: ReactNode; title: string; status: string; children: ReactNode; ok: boolean }) {
@@ -55,6 +79,7 @@ export function Entrada() {
   const midiStatus = useDevices((s) => s.midiStatus)
   const status = useMic((s) => s.status)
   const device = useMic((s) => s.deviceName)
+  const calibration = useMic((s) => s.calibration)
   const { settings, update } = useSettings()
   const screenLast = useLastReceived('screen')
   const midiLast = useLastReceived('midi')
@@ -101,10 +126,11 @@ export function Entrada() {
           ) : (
             <>
               <Button onClick={() => void setMicrophone(false)}><MicOff size={18} strokeWidth={1.75} aria-hidden /> Desligar</Button>
-              <Button onClick={() => mic.recalibrate()} title="Fique em silêncio por alguns segundos"><RefreshCw size={18} strokeWidth={1.75} aria-hidden /> Recalibrar ruído</Button>
+              <Button onClick={() => mic.recalibrate()} disabled={calibration.kind === 'running'} title="Fique em silêncio por alguns segundos"><RefreshCw size={18} strokeWidth={1.75} aria-hidden /> {calibration.kind === 'running' ? 'Calibrando…' : 'Recalibrar ruído'}</Button>
             </>
           )}
         </div>
+        {micOn && calibration.kind !== 'idle' && <CalibrationNote state={calibration} />}
         {micProblem && <p className="mt-3 text-[16px]" role="alert">{micProblem}</p>}
         {device && micOn && <p className="mt-2 text-[14px] text-muted">{device}</p>}
         {micOn && (

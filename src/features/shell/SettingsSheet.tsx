@@ -7,6 +7,9 @@ export function SettingsSheet() {
   const open = useUi((s) => s.settingsOpen)
   const setOpen = useUi((s) => s.setSettingsOpen)
   const { settings: s, update } = useSettings()
+  const fit = useUi((st) => st.fitWhites)
+  const zoomMax = Math.max(7, Math.min(21, fit))
+  const zoomValue = Math.min(s.keyboardZoom, zoomMax)
   return (
     <Sheet open={open} onClose={() => setOpen(false)} title="Ajustes">
       <Section title="Aparência">
@@ -29,7 +32,8 @@ export function SettingsSheet() {
         <Switch label="Mostrar nomes nas teclas" checked={s.showNoteNames} onChange={(showNoteNames) => update({ showNoteNames })} />
         <Switch label="Mostrar atalhos" hint="Letras do teclado do computador (A–L, W E T Y U O P; Z e X mudam a oitava)" checked={s.showShortcuts} onChange={(showShortcuts) => update({ showShortcuts })} />
         <Switch label="Segurar teclas" hint="Um toque liga, outro desliga" checked={s.latchKeys} onChange={(latchKeys) => update({ latchKeys })} />
-        <Slider label="Zoom do teclado" valueText={`${s.keyboardZoom} teclas brancas`} min={7} max={21} step={1} value={s.keyboardZoom} onChange={(keyboardZoom) => update({ keyboardZoom })} />
+        <Slider label="Zoom do teclado" valueText={`${zoomValue} teclas brancas`} min={7} max={zoomMax} step={1} value={zoomValue} onChange={(keyboardZoom) => update({ keyboardZoom })} />
+        {zoomMax < 21 && <p className="t-caption text-faint">Esta tela comporta até {zoomMax} teclas brancas com alvos de toque de 44 px. Gire o aparelho ou aumente a janela para ver mais.</p>}
       </Section>
       <Section title="Som e toque">
         <Switch label="Som do piano" checked={s.pianoSound} onChange={(pianoSound) => update({ pianoSound })} />

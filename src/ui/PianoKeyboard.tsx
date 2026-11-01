@@ -52,7 +52,7 @@ function PianoKeyboardImpl({ hub, keyStates, zoom, showNames, showShortcuts, acc
     if (!el) return
     const measure = () => {
       const fit = Math.max(5, Math.floor(el.clientWidth / MIN_WHITE_PX))
-      setVisible(Math.max(5, Math.min(zoom, fit)))
+      setVisible(Math.max(5, Math.min(zoom, fit)), fit)
     }
     measure()
     const ro = new ResizeObserver(measure)

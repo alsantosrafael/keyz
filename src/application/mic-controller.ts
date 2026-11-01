@@ -19,6 +19,18 @@ export type MicStatus =
   | { kind: 'note'; note: number }
   | { kind: 'chord'; pitchClasses: PitchClass[] }
 
+/** Estado da calibração de ruído, para dar retorno claro na tela. */
+export type CalibrationState =
+  | { kind: 'idle' }
+  | { kind: 'running'; progress: number }
+  | { kind: 'done'; level: 'quiet' | 'moderate' | 'loud' }
+
+/** Ruído médio (RMS) durante a calibração: abaixo de `QUIET` é sala silenciosa; acima de `LOUD`, calibrar de novo. */
+const NOISE_QUIET = 0.008
+const NOISE_LOUD = 0.03
+
+export const noiseLevelFor = (rms: number): 'quiet' | 'moderate' | 'loud' => (rms < NOISE_QUIET ? 'quiet' : rms < NOISE_LOUD ? 'moderate' : 'loud')
+
 export interface MicSnapshot {
   status: MicStatus
   deviceName: string | null
@@ -27,6 +39,7 @@ export interface MicSnapshot {
   stable: DetectedNote | null
   /** Ruído alto: energia espalhada sem nota confirmada por vários quadros. */
   noisy: boolean
+  calibration: CalibrationState
 }
 
 /** Tempo sem nota antes de soltar a tecla: curto para acompanhar, longo para falhas momentâneas. */
@@ -40,7 +53,7 @@ export class MicController {
   readonly changes = new Emitter<MicSnapshot>()
   /** Reconhecer acordes. Acordes/Livre ligam; o Desafio desliga para um harmônico forte não virar segunda nota. */
   chords = true
-  private snap: MicSnapshot = { status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false }
+  private snap: MicSnapshot = { status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false, calibration: { kind: 'idle' } }
   private enabled = false
   private notes = new Set<number>()
   private chordActive = false
@@ -79,7 +92,7 @@ export class MicController {
     const generation = ++this.generation
     if (!enabled) {
       this.stop()
-      this.set({ status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false })
+      this.set({ status: { kind: 'off' }, deviceName: null, level: 0, stable: null, noisy: false, calibration: { kind: 'idle' } })
       return
     }
     this.set({ ...this.snap, status: { kind: 'starting' } })
@@ -108,12 +121,15 @@ export class MicController {
     this.mic.setSensitivity(Math.min(Math.max(value, 0), 1))
   }
   recalibrate(): void {
+    if (!this.enabled) return
     this.mic.recalibrate()
+    // Retorno imediato: o primeiro quadro só chega depois de alguns milissegundos.
+    this.set({ ...this.snap, calibration: { kind: 'running', progress: 0 } })
   }
 
   private deviceLost(): void {
     this.stop()
-    this.set({ status: { kind: 'no-device' }, deviceName: null, level: 0, stable: null, noisy: false })
+    this.set({ status: { kind: 'no-device' }, deviceName: null, level: 0, stable: null, noisy: false, calibration: { kind: 'idle' } })
   }
 
   private stop(): void {
@@ -140,6 +156,10 @@ export class MicController {
     if (!this.enabled) return
     const now = this.clock()
     this.lastFrameAt = now
+    if (frame.calibration) {
+      const { progress, noiseLevel } = frame.calibration
+      this.set({ ...this.snap, calibration: progress >= 1 ? { kind: 'done', level: noiseLevelFor(noiseLevel) } : { kind: 'running', progress } })
+    }
     const muted = this.gate?.busy ?? false
     this.zeroFrames = frame.peak === 0 ? this.zeroFrames + 1 : 0
     // Os estabilizadores recomeçam no ataque, então a confirmação chega alguns quadros depois.
