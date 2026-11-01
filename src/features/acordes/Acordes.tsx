@@ -10,6 +10,9 @@ import { type KeyVisual, WHITE_MIDIS, getApp, useChords, useSettings, useUi } fr
 import { Hud } from '../common/Hud'
 import { SessionSummary } from '../common/Summary'
 import { usePublishKeyStates } from '../common/hooks'
+import { useOnboarding } from '../../state/onboarding'
+import { Tutorial } from '../onboarding/Tutorial'
+import { ResumeTutorial } from '../onboarding/TutorialPrompt'
 
 /** Nota com a classe `pc` mais perto do centro da janela visível do teclado. */
 function nearestVisible(pc: number, first: number, count: number): number {
@@ -26,8 +29,20 @@ function nearestVisible(pc: number, first: number, count: number): number {
   return best
 }
 
-/** Acordes: monte o acorde segurando as teclas; o anel fecha conforme as notas certas entram. */
+/** Acordes: o tutorial (quando aberto) ou a prática. Um lembrete discreto aparece se o tutorial ficou pela metade. */
 export function Acordes() {
+  const open = useOnboarding((s) => s.tutorialOpen)
+  if (open) return <Tutorial />
+  return (
+    <>
+      <ResumeTutorial />
+      <ChordPractice />
+    </>
+  )
+}
+
+/** Prática de acordes: monte o acorde segurando as teclas; o anel fecha conforme as notas certas entram. */
+function ChordPractice() {
   const { chords } = getApp()
   const s = useChords((x) => x)
   const accidental = useSettings((x) => x.settings.accidental)

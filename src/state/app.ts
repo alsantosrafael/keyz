@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import {
-  ChordSession, DrillSession, type Emitter, FreeSession, InputHub, MicController, type MicSnapshot, connectSound, services,
+  ChordSession, DrillSession, type Emitter, TutorialSession, FreeSession, InputHub, MicController, type MicSnapshot, connectSound, services,
   type ChordSnapshot, type DrillSnapshot, type FreeSnapshot,
 } from '../application'
 import { STORAGE_KEYS, type Settings, defaultSettings, parseSettings } from '@keyz/shared'
+import { bindOnboarding, tutorialActions, useOnboarding } from './onboarding'
 
 /** Instâncias de `application` vivas durante a sessão. Criadas uma vez em `initApp`. */
 export interface App {
@@ -117,10 +118,12 @@ export function initApp(): App {
   const settings = parseSettings(svc.storage.read(STORAGE_KEYS.settings))
   useSettings.setState({ settings })
 
-  const mic = new MicController(hub, svc.microphone, svc.clock, svc.scheduler)
+  const mic = new MicController(hub, svc.microphone, svc.clock, svc.scheduler, svc.outputGate)
   const free = new FreeSession(hub, svc.clock)
   const chords = new ChordSession(hub, svc)
   const drill = new DrillSession(hub, svc, () => useSettings.getState().settings.extraTime)
+  useOnboarding.getState().load()
+  bindOnboarding(new TutorialSession(hub, svc, () => tutorialActions.nextStep()))
   app = { hub, mic, free, chords, drill }
 
   freeStore = bridge(free.snapshot, free.changes)

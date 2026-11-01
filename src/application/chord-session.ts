@@ -2,6 +2,7 @@ import {
   ChordGenerator, type Chord, type ChordEvaluation, type ChordQuality, HeldNotes, chordDisplayName, chordEquals,
   chordOrderedPitchClasses, chordPitchClasses, evaluateChord, noteSolfege, pitchClassName, solfegeName, starsFor, type Stars,
 } from '@keyz/shared'
+import { chordVoicing } from './chord-voicing'
 import { Emitter } from './emitter'
 import type { InputHub } from './input-hub'
 import type { Services } from './ports'
@@ -185,11 +186,7 @@ export class ChordSession {
   }
 
   chordMidis(chord: Chord): number[] {
-    let last = 60 + chord.root - 12
-    return chordOrderedPitchClasses(chord).map((pc) => {
-      while (last % 12 !== pc || last < 48) last += 1
-      return last
-    })
+    return chordVoicing(chord)
   }
 
   private cancel(): void {

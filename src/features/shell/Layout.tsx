@@ -8,6 +8,7 @@ import { InputPill } from './InputPill'
 import { MicPrompt } from './MicPrompt'
 import { ModeBar } from './ModeBar'
 import { SettingsSheet } from './SettingsSheet'
+import { TutorialPrompt } from '../onboarding/TutorialPrompt'
 import { modeForPath } from './modes'
 import { useComputerKeyboard } from './useComputerKeyboard'
 
@@ -79,6 +80,7 @@ export function Layout() {
 
       <main id="conteudo" ref={mainRef} tabIndex={-1} className="relative z-0 overflow-y-auto overscroll-contain px-4 py-3 outline-none sm:py-5 md:px-6 lg:px-8">
         <div className={mode.id === 'free' || mode.id === 'chords' ? 'mx-auto w-full max-w-[720px] lg:max-w-[1040px]' : 'mx-auto w-full max-w-[720px]'}>
+          <TutorialPrompt />
           <Suspense fallback={<div aria-busy className="min-h-[320px]" />}>
             <Outlet />
           </Suspense>

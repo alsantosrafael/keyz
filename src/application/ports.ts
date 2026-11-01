@@ -55,6 +55,8 @@ export interface Scheduler {
 }
 
 export interface Services {
+  /** Portão de saída: o microfone ignora o que o próprio app está tocando (ver `output-gate.ts`). */
+  outputGate?: import('./output-gate').OutputGate
   piano: PianoPort
   feedback: FeedbackPort
   haptics: HapticsPort

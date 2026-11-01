@@ -2,6 +2,7 @@ import { type MicFrame, type PitchClass, type DetectedNote, pitchClass } from '@
 import type { InputHub } from './input-hub'
 import type { Clock, MicrophonePort, Scheduler } from './ports'
 import { Emitter } from './emitter'
+import type { OutputGate } from './output-gate'
 
 export type MicStatus =
   | { kind: 'off' }
@@ -60,6 +61,8 @@ export class MicController {
     private readonly mic: MicrophonePort,
     private readonly clock: Clock,
     private readonly scheduler: Scheduler,
+    /** Enquanto o app está soando, o microfone não gera notas (evita o laço com o próprio som). */
+    private readonly gate?: OutputGate,
   ) {}
 
   get snapshot(): MicSnapshot {
@@ -121,11 +124,15 @@ export class MicController {
     if (!this.enabled) return
     const now = this.clock()
     this.lastFrameAt = now
+    const muted = this.gate?.busy ?? false
     this.zeroFrames = frame.peak === 0 ? this.zeroFrames + 1 : 0
     // Os estabilizadores recomeçam no ataque, então a confirmação chega alguns quadros depois.
     if (frame.attack) this.pendingAttack = true
 
-    if (this.chords && frame.chord) {
+    if (muted) {
+      this.releaseNotes()
+      this.lastEvidenceAt = null
+    } else if (this.chords && frame.chord) {
       // Acorde: sem oitava confiável, as notas vão para a oitava do Dó central.
       this.lastEvidenceAt = now
       this.setNotes(new Set(frame.chord.map((p) => 60 + p)), true)
@@ -142,7 +149,7 @@ export class MicController {
     this.noisyFrames = frame.level > 0.02 && frame.spectrumNotes.length >= 4 && !frame.stable && !frame.chord ? this.noisyFrames + 1 : 0
     const noisy = this.noisyFrames > 50
 
-    const rawStatus = this.statusFor(frame, noisy)
+    const rawStatus = muted ? { kind: 'hearing' as const } : this.statusFor(frame, noisy)
     this.holdStatus(rawStatus, now)
     if (now - this.lastPublished >= SNAPSHOT_INTERVAL) {
       this.lastPublished = now

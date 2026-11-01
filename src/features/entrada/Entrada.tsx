@@ -9,6 +9,7 @@ import { cn } from '../../ui/cn'
 import { getApp, setMicrophone, useDevices, useMic, useSettings } from '../../state/app'
 import { micLabel } from '../shell/InputPill'
 import { usePublishKeyStates } from '../common/hooks'
+import { ModeTip } from '../onboarding/ModeTip'
 
 const NONE = new Map<number, never>()
 
@@ -73,6 +74,7 @@ export function Entrada() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="t-title">Entrada</h1>
+      <ModeTip mode="entrada">Ligue um teclado MIDI pela USB ou Bluetooth, ou ative o microfone para tocar no seu piano de verdade. Exemplo: toque Dó no piano e o Keyz mostra "Dó".</ModeTip>
       <p className="text-[16px] text-muted">Escolha como o Keyz recebe as suas notas. Toque em qualquer fonte para testar.</p>
       <LiveRegion text={`${screenLast ?? ''}`} />
 
