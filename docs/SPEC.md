@@ -119,7 +119,7 @@ O app importa o domínio como `@keyz/shared`. Os testes de `shared` rodam dentro
 
 - Comandos: `bun install --frozen-lockfile`, `bun run build`, `bun test`.
 - O CI (GitHub Actions) faz só o build: instala com `setup-bun`, roda `bun run build` e publica `dist` como artefato.
-- Publicação automatizada: o workflow `release.yml` usa o release-please (SemVer pelos Conventional Commits). Mergear o PR de release cria a tag e a Release e dispara o deploy na Cloudflare Pages (`keyz-9ir`). Passo a passo e segredos no README. `bun run deploy` fica só como saída de emergência.
+- Publicação automatizada: o workflow `release.yml` usa o release-please (SemVer pelos Conventional Commits). Mergear o PR de release cria a tag e a Release e dispara o deploy na Cloudflare Pages (projeto `keyz`, em `keyz-9ir.pages.dev`). Passo a passo e segredos no README. `bun run deploy` fica só como saída de emergência.
 - Headers de segurança e o fallback do SPA vão em `public/_headers` e `public/_redirects` e seguem para o `dist/`.
 - O build falha se o lockfile estiver desatualizado, o que mantém as dependências reprodutíveis.
 
