@@ -123,6 +123,6 @@ gh release view <tag> --repo <dono/repo>          # notas da versão (procure BR
 
 1. **Aplique a ordem:** segurança → menores/patch → `actions/*` → majors, um por vez.
 2. Faça o rebase de todos que estiverem vermelhos por base antiga antes de julgá-los.
-3. Mergeie um, espere o CI do próximo reroda sobre a `main` nova (cada merge muda a base e pode exigir novo rebase; o Dependabot faz isso sozinho quando há conflito, ou use `@dependabot rebase`).
+3. Mergeie um de cada vez. Cada merge muda a `main`, então o CI do próximo precisa rodar sobre a base nova: o Dependabot atualiza a branch sozinho quando há conflito; nos outros casos, comente `@dependabot rebase` e espere o CI verde.
 4. Para reduzir a fila no futuro: agrupar mais (já agrupamos `actions/*` e menores/patch) e reservar um horário semanal fixo para esvaziá-la.
 5. Não deixe um major parado por meses: quanto mais velho, maior o salto e mais difícil a migração.
