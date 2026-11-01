@@ -94,6 +94,8 @@ Prefira a pipeline: ela garante que o que vai ao ar foi testado e tem tag.
 
 ### Segurança
 
+Todas as proteções (cabeçalhos HTTP, GitHub, pipeline, segredos), como conferir e as lacunas conhecidas estão em [`docs/SEGURANCA.md`](docs/SEGURANCA.md). Resumo:
+
 - **Cabeçalhos:** CSP restritiva (só a própria origem, sem `blob:`, sem `form-action`, `frame-ancestors 'none'`, `upgrade-insecure-requests`), HSTS, COOP/CORP `same-origin`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer` e `Permissions-Policy` que libera só microfone e MIDI na própria origem. O teste `e2e/csp.spec.ts` aplica esses cabeçalhos reais e falha se o app ou o microfone gerarem qualquer violação.
 - **Cadeia de suprimentos:** as Actions são fixadas por SHA (o comentário ao lado indica a versão) e o Dependabot propõe as atualizações; dependências com lockfile congelado e `bun audit` no CI e no deploy; workflows com permissões mínimas e `persist-credentials: false`.
 - **Dados:** sem backend, contas ou analytics; o áudio nunca sai do aparelho. Vulnerabilidades: veja `SECURITY.md`.

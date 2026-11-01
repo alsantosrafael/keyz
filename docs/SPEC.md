@@ -524,7 +524,7 @@ Vibração: `navigator.vibrate` quando disponível (Android), opcional e deslig�
 | Leitor de tela | notas e resultados anunciados (`aria-live`) | Teste manual com VoiceOver |
 | Compatibilidade | Chrome e Edge: completo. Safari 17+ e Firefox: sem MIDI | Matriz de testes no CI, a definir |
 | Responsividade | iPhone a partir de 375 px, iPad e desktop | Playwright com viewports |
-| Privacidade | Áudio nunca sai do dispositivo. Sem analytics na v1. CSP restritiva | Revisão de headers na Cloudflare |
+| Privacidade | Áudio nunca sai do dispositivo. Sem analytics na v1. CSP restritiva | `e2e/csp.spec.ts` no CI; detalhes em `docs/SEGURANCA.md` |
 
 As versões mínimas de navegador serão confirmadas no spike.
 

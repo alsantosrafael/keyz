@@ -46,6 +46,7 @@ Camadas, de dentro para fora: `shared` (domínio puro) → `platform` (adaptador
 
 - Não commitar nem publicar sem pedido do usuário.
 - Commits seguem Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `ci:`, `test:`, `refactor:`, `perf:`), com a descrição em português: a versão SemVer e o CHANGELOG saem deles (release-please). Lançar = mergear o PR de release; nunca editar versão ou CHANGELOG à mão.
+- Mudou cabeçalho HTTP, workflow, ruleset ou qualquer proteção? Atualize `docs/SEGURANCA.md` no mesmo trabalho.
 - Segredos (token da Cloudflare etc.) nunca entram no repositório nem na conversa; ficam em GitHub Secrets.
 - Mudou comportamento ou decisão de design? Atualize `docs/SPEC.md` no mesmo trabalho.
 - Dúvidas de produto vão para "Questões em aberto" da spec, não para decisões silenciosas no código.
