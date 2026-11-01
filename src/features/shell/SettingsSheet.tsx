@@ -47,6 +47,7 @@ export function SettingsSheet() {
           />
         </div>
       </Section>
+      <p className="t-label mt-4 text-faint">Keyz v{__APP_VERSION__}</p>
     </Sheet>
   )
 }
