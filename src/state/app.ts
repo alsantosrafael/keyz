@@ -58,6 +58,7 @@ interface UiState {
   octave: number
   micPrompt: boolean
   settingsOpen: boolean
+  changelogOpen: boolean
   setFirstWhite: (i: number) => void
   setVisibleWhites: (n: number) => void
   /** Garante que a nota apareça, deslocando a janela o mínimo possível. */
@@ -66,6 +67,7 @@ interface UiState {
   setOctave: (o: number) => void
   setMicPrompt: (v: boolean) => void
   setSettingsOpen: (v: boolean) => void
+  setChangelogOpen: (v: boolean) => void
 }
 const clampFirst = (i: number, visible: number) => Math.max(0, Math.min(WHITE_MIDIS.length - visible, i))
 
@@ -75,6 +77,7 @@ export const useUi = create<UiState>((set, get) => ({
   octave: 4,
   micPrompt: false,
   settingsOpen: false,
+  changelogOpen: false,
   setFirstWhite: (i) => set({ firstWhite: clampFirst(i, get().visibleWhites) }),
   setVisibleWhites: (n) => set({ visibleWhites: n, firstWhite: clampFirst(get().firstWhite, n) }),
   reveal: (midi) => {
@@ -88,6 +91,7 @@ export const useUi = create<UiState>((set, get) => ({
   setOctave: (octave) => set({ octave }),
   setMicPrompt: (micPrompt) => set({ micPrompt }),
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+  setChangelogOpen: (changelogOpen) => set({ changelogOpen }),
 }))
 
 /** Estado visual das teclas além de "pressionada"; cada modo publica o seu. */

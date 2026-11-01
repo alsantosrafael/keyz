@@ -47,7 +47,17 @@ export function SettingsSheet() {
           />
         </div>
       </Section>
-      <p className="t-label mt-4 text-faint">Keyz v{__APP_VERSION__}</p>
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false)
+          useUi.getState().setChangelogOpen(true)
+          update({ seenVersion: __APP_VERSION__ })
+        }}
+        className="t-label mt-4 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control text-muted hover:text-ink"
+      >
+        Keyz v{__APP_VERSION__} · Ver novidades
+      </button>
     </Sheet>
   )
 }

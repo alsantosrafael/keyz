@@ -498,6 +498,13 @@ Princípios: resposta imediata, movimento com propósito, nada que atrase o temp
 
 Vibração: `navigator.vibrate` quando disponível (Android), opcional e desligável nos ajustes.
 
+### Versão e novidades
+
+- A versão (SemVer) vem do `package.json`, injetada no build (`__APP_VERSION__`), e aparece no cabeçalho (telas ≥ 768 px) e em Ajustes (`Keyz vX.Y.Z · Ver novidades`).
+- A folha **Novidades** mostra o `CHANGELOG.md` gerado pelo release-please, embutido no build e carregado só ao abrir. O texto é lido por `parseChangelog` (`shared/changelog`) e renderizado como texto puro, nunca como HTML.
+- Quando a versão muda desde a última que o usuário viu (`seenVersion` nos ajustes), aparece um ponto no chip da versão e no ícone de Ajustes, com o nome acessível "há novidades". No primeiro uso nada é sinalizado. Abrir as novidades marca a versão como vista.
+- Só entram no changelog os commits `feat`, `fix`, `perf`, `refactor` e `docs`; `chore`, `ci` e `test` ficam de fora (config do release-please).
+
 ## Regras de acessibilidade
 
 - Cor nunca é o único sinal: ícone e texto acompanham em todo resultado e estado de tecla (`target` tem anel, `correct` tem marca de verificação na tecla, `wrong` tem marca de X).

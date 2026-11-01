@@ -25,6 +25,8 @@ export const settingsSchema = z.object({
   extraTime: z.union([z.literal(1), z.literal(1.5), z.literal(2)]).default(1),
   showTrail: z.boolean().default(true),
   welcomeSeen: z.boolean().default(false),
+  /** Última versão cujas novidades o usuário viu ('' = primeiro uso). */
+  seenVersion: z.string().max(40).default(''),
 })
 export type Settings = z.infer<typeof settingsSchema>
 export const defaultSettings: Settings = settingsSchema.parse({})

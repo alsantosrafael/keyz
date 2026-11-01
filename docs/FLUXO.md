@@ -52,7 +52,7 @@ Se o CI falhar, abra o log (`gh pr checks`, `gh run view --log-failed`), corrija
 2. Revise o PR: versão proposta e o CHANGELOG fazem sentido? Se a versão estiver errada, o problema está nos títulos dos PRs anteriores: corrija com um commit/PR novo, não editando o arquivo à mão.
 3. **Mergeie o PR de release.** Como ele é criado pelo `GITHUB_TOKEN`, o CI não roda nele e os checks obrigatórios nunca ficam verdes. Use o bypass do admin: no PR, *Merge without waiting for requirements to be met*. É o único caso em que isso é esperado.
 4. O merge cria a tag `vX.Y.Z` e a Release no GitHub. Em seguida o job `deploy` (ambiente `production`, só a `main`) instala, audita, testa, builda e publica na Cloudflare Pages.
-5. Confira: *Actions › Release* verde, a versão em Ajustes ("Keyz vX.Y.Z") em <https://keyz-9ir.pages.dev> e, se mexeu em cabeçalhos, o `curl -sI` de `docs/SEGURANCA.md`.
+5. Confira: *Actions › Release* verde, a versão no cabeçalho e em Ajustes ("Keyz vX.Y.Z"), as novidades da versão na folha *Novidades* (vêm do `CHANGELOG.md`, então bons títulos de PR viram um bom changelog) em <https://keyz-9ir.pages.dev> e, se mexeu em cabeçalhos, o `curl -sI` de `docs/SEGURANCA.md`.
 
 Republicar a versão atual (sem nova release): *Actions › Release › Run workflow* com `redeploy` marcado.
 
