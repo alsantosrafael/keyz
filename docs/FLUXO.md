@@ -61,7 +61,7 @@ Republicar a versão atual (sem nova release): *Actions › Release › Run work
 | Situação | O que fazer |
 | --- | --- |
 | O job `deploy` falhou (token, Wrangler…) | O site **continua na versão anterior**. Leia o log, corrija e rode `redeploy` |
-| Foi para o ar uma versão com bug | **Rollback imediato:** Cloudflare › Workers & Pages › `keyz-9ir` › *Deployments* › deployment anterior › *Rollback to this deployment*. Depois corrija por PR (`fix:`) e lance uma nova versão |
+| Foi para o ar uma versão com bug | **Rollback imediato:** Cloudflare › Workers & Pages › projeto `keyz` › *Deployments* › deployment anterior › *Rollback to this deployment*. Depois corrija por PR (`fix:`) e lance uma nova versão |
 | A versão nova precisa ser desfeita no código | `git revert` do commit em uma branch, PR com título `revert: ...`, e lance outra versão |
 
 Nunca reescreva a `main` nem apague tags de versões já lançadas.

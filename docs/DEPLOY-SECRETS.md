@@ -14,7 +14,7 @@ Faça uma vez. Tempo: uns 5 minutos.
 ## Pré-requisitos
 
 - `gh` logado: `gh auth status` (conta `alsantosrafael`).
-- Acesso à conta Cloudflare onde o projeto `keyz-9ir` foi criado.
+- Acesso à conta Cloudflare onde o projeto Pages `keyz` foi criado.
 - O ambiente `production` já existe no repositório (foi criado e restrito à branch `main`).
 
 ## 1. Criar o token na Cloudflare
@@ -93,7 +93,7 @@ Faça quando o token expirar, quando mudar de máquina por segurança ou se susp
 | Sintoma no job `deploy` | Causa provável | O que fazer |
 | --- | --- | --- |
 | `Authentication error [code: 10000]` | Token errado, expirado ou sem a permissão do Pages | Refaça o passo 1 e o passo 3 |
-| `Could not route to ... /pages/projects/keyz-9ir` ou `Project not found` | `CLOUDFLARE_ACCOUNT_ID` de outra conta | Confira o passo 2 |
+| `Project not found [code: 8000007]` | Nome do projeto errado no `--project-name` (o **nome** do projeto é `keyz`; `keyz-9ir` é só o prefixo do domínio `keyz-9ir.pages.dev`) **ou** `CLOUDFLARE_ACCOUNT_ID` de outra conta | Confira com `bunx wrangler pages project list` (coluna *Project Name*) e o passo 2 |
 | O job fica "Waiting" ou falha antes de ler o secret | Rodou fora da `main` (o ambiente só libera a `main`) | Rode o workflow na `main` |
 | Secrets ausentes (`secrets.CLOUDFLARE_API_TOKEN` vazio) | Foram criados no repositório, não no ambiente `production` | Refaça o passo 3 com `--env production` |
 | Job `deploy` é pulado | Não houve release nova e `redeploy` estava desmarcado | É o esperado; mergeie o PR de release ou use o passo 5 |
