@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/alsantosrafael/keyz/compare/v0.6.0...v0.6.1) (2026-11-02)
+
+
+### Correções
+
+* **microfone:** funciona no iPhone e orienta quando a permissão é negada ([#37](https://github.com/alsantosrafael/keyz/issues/37)) ([da23603](https://github.com/alsantosrafael/keyz/commit/da236030dff47b6fc14122026816830a59ceea13))
+
 ## [0.6.0](https://github.com/alsantosrafael/keyz/compare/v0.5.1...v0.6.0) (2026-11-02)
 
 
