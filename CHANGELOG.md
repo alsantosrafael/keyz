@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/alsantosrafael/keyz/compare/v0.5.0...v0.5.1) (2026-11-02)
+
+
+### Correções
+
+* **acordes:** julga só com a tela aberta e separa feedback de veredito ([#33](https://github.com/alsantosrafael/keyz/issues/33)) ([5367cb1](https://github.com/alsantosrafael/keyz/commit/5367cb17ef78db9a073b785b0b783c8ccc3291ea))
+
 ## [0.5.0](https://github.com/alsantosrafael/keyz/compare/v0.4.2...v0.5.0) (2026-11-02)
 
 
