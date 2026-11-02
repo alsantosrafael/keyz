@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/alsantosrafael/keyz/compare/v0.4.2...v0.5.0) (2026-11-02)
+
+
+### Novidades
+
+* **telemetria:** registra erros técnicos sem conteúdo do usuário ([#30](https://github.com/alsantosrafael/keyz/issues/30)) ([a80d3d7](https://github.com/alsantosrafael/keyz/commit/a80d3d7b5aec249d9af15955c7f0340256c6e862))
+
 ## [0.4.2](https://github.com/alsantosrafael/keyz/compare/v0.4.1...v0.4.2) (2026-11-02)
 
 
