@@ -52,7 +52,7 @@ describe('ciclo de vida do microfone', () => {
     expect(hub.activeNotes).toEqual([64])
   })
 
-  it('dispositivo removido vira "no-device" e solta as notas', async () => {
+  it('microfone interrompido pelo sistema vira "interrupted" e solta as notas', async () => {
     const time = new FakeTime()
     const m = fakeMic()
     const ctrl = new MicController(new InputHub(time.clock), m.port, time.clock, time)
@@ -60,7 +60,7 @@ describe('ciclo de vida do microfone', () => {
     m.pending[0](ok)
     await on
     m.lost()
-    expect(ctrl.snapshot.status).toEqual({ kind: 'no-device' })
+    expect(ctrl.snapshot.status).toEqual({ kind: 'interrupted' })
     expect(ctrl.isEnabled).toBe(false)
   })
 })

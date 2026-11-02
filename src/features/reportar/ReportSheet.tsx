@@ -32,7 +32,7 @@ function useReportContext(): ReportContext {
   const midi = useDevices((s) => s.midi)
   const mode = modeForPath(window.location.pathname)
   const inputs = [
-    micKind !== 'off' && !['denied', 'unsupported', 'no-device', 'failed'].includes(micKind) ? 'microfone' : null,
+    micKind !== 'off' && !['denied', 'unsupported', 'no-device', 'interrupted', 'failed'].includes(micKind) ? 'microfone' : null,
     midi.length ? 'MIDI' : null,
     'tela/teclado',
   ].filter(Boolean)

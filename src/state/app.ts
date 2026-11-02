@@ -174,6 +174,6 @@ export async function setMicrophone(enabled: boolean): Promise<void> {
   const { mic } = getApp()
   await services().piano.resume()
   await mic.setEnabled(enabled)
-  const ok = mic.snapshot.status.kind !== 'denied' && mic.snapshot.status.kind !== 'unsupported' && mic.snapshot.status.kind !== 'no-device' && mic.snapshot.status.kind !== 'failed'
+  const ok = mic.snapshot.status.kind !== 'denied' && mic.snapshot.status.kind !== 'unsupported' && mic.snapshot.status.kind !== 'no-device' && mic.snapshot.status.kind !== 'interrupted' && mic.snapshot.status.kind !== 'failed'
   useSettings.getState().update({ microphoneEnabled: enabled && ok })
 }

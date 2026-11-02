@@ -10,6 +10,7 @@ export type MicStatus =
   | { kind: 'denied' }
   | { kind: 'unsupported' }
   | { kind: 'no-device' }
+  | { kind: 'interrupted' }
   | { kind: 'failed'; message: string }
   | { kind: 'no-audio' }
   | { kind: 'blocked' }
@@ -112,7 +113,7 @@ export class MicController {
     this.unsubscribe?.()
     this.unsubscribe = this.mic.onFrame((f) => this.handle(f))
     this.lostUnsub?.()
-    this.lostUnsub = this.mic.onLost?.(() => this.deviceLost()) ?? null
+    this.lostUnsub = this.mic.onLost?.(() => this.interrupted()) ?? null
     this.runWatchdog()
     this.set({ ...this.snap, deviceName: result.deviceName, status: { kind: 'silence' } })
   }
@@ -127,9 +128,10 @@ export class MicController {
     this.set({ ...this.snap, calibration: { kind: 'running', progress: 0 } })
   }
 
-  private deviceLost(): void {
+  /** O sistema tirou o microfone (troca de aba, ligação, bloqueio da tela): não é falta de aparelho. */
+  private interrupted(): void {
     this.stop()
-    this.set({ status: { kind: 'no-device' }, deviceName: null, level: 0, stable: null, noisy: false, calibration: { kind: 'idle' } })
+    this.set({ status: { kind: 'interrupted' }, deviceName: null, level: 0, stable: null, noisy: false, calibration: { kind: 'idle' } })
   }
 
   private stop(): void {

@@ -10,6 +10,7 @@ export function micLabel(kind: string): string {
     case 'denied': return 'Microfone desligado'
     case 'unsupported': return 'Microfone desligado'
     case 'no-device': return 'Microfone desligado'
+    case 'interrupted': return 'Microfone pausado'
     case 'failed': return 'Microfone desligado'
     case 'no-audio': return 'Sem áudio'
     case 'blocked': return 'Microfone bloqueado'
@@ -40,7 +41,7 @@ export function InputPill() {
   const status = useMic((s) => s.status)
   const setPrompt = useUi((s) => s.setMicPrompt)
   const off = status.kind === 'off'
-  const failed = ['denied', 'unsupported', 'no-device', 'failed'].includes(status.kind)
+  const failed = ['denied', 'unsupported', 'no-device', 'interrupted', 'failed'].includes(status.kind)
   const listening = ['silence', 'hearing', 'note', 'chord', 'noisy'].includes(status.kind)
 
   return (

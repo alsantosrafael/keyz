@@ -1,6 +1,6 @@
 import type { MicFrame } from '@keyz/shared'
 import type { MicrophonePort, MicStartResult } from '../application/ports'
-import { getAudioContext, resumeAudio } from './audio'
+import { audioSupported, getAudioContext, resumeAudio } from './audio'
 
 /** Microfone: getUserMedia sem filtros → AudioWorklet (10 ms) → Web Worker (YIN e chroma). */
 export class WebMicrophone implements MicrophonePort {
@@ -11,6 +11,15 @@ export class WebMicrophone implements MicrophonePort {
   private source: MediaStreamAudioSourceNode | null = null
   private worker: Worker | null = null
   private sensitivity = 0.5
+
+  constructor() {
+    // Ao voltar para a aba, o navegador costuma ter suspendido o contexto de áudio: retoma (dentro do retorno do usuário).
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && audioSupported() && getAudioContext().state === 'suspended') void resumeAudio()
+      })
+    }
+  }
 
   onFrame(cb: (f: MicFrame) => void): () => void {
     this.frameListeners.add(cb)
