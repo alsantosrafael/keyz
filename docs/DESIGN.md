@@ -160,6 +160,17 @@ Barra em cápsula ou arco, sempre em `surface-inset`. Atualiza por variável CSS
 
 Anel SVG que envolve a nota e esvazia continuamente (linear, pois é progresso constante). Cor da faixa do modo até 2/3 do tempo; depois `warning`. Nos últimos 3 s pulsa devagar. Também serve de anel de progresso (Acordes e Tutorial), com `progress` de 0 a 1.
 
+Conteúdo do anel no Desafio com acordes: raiz em solfejo (40 a 56 px), qualidade, cifra e inversão em linhas curtas, numa faixa de 7,5 rem. Nunca uma linha só: o nome mais longo ("com sétima e nona aumentada", 3ª inversão) tem de deixar pelo menos 15% da largura do anel livre de cada lado (coberto por e2e). Como o anel já mostra a resposta no resultado, a frase de resultado de acorde diz só o que falta ("Tempo esgotado", "Você tocou …").
+
+### Lobby do Desafio (escolha de nível)
+
+- **Tipo de treino** (Notas ou Acordes) em `Segmented` centralizado, acima dos níveis, com rótulo `t-caption`.
+- **Níveis** em cartões `surface-panel`: duas colunas em tablet e desktop (quatro lado a lado ficariam apertados dentro dos 720 px de leitura), uma coluna no celular. Em cada cartão: quadro com o ícone do nível tingido pela cor do nível (`color-mix` sobre o token), nome, quatro degraus que mostram a posição na escada (1 a 4), uma linha de tom, fichas com o tempo e o escopo, e a melhor marca na mesma linha.
+- **Seleção**: contorno e brilho da faixa, mais marca de verificação (nunca só cor). Os não escolhidos mostram círculo vazio.
+- **Cores dos níveis**: Fácil `success`, Médio `warning`, Avançado `failure`, Profissional a cor de acordes. Cada nível tem ícone próprio.
+- **Entrada**: cartões escalonados (40 ms), com `fade` de 120 ms em movimento reduzido.
+- **CTA**: "Jogar · {nível}" ocupa a largura; "Personalizar" fica ao lado no desktop.
+
 ### `Button`, `IconButton`, `Chip`, `Switch`, `Slider`, `Segmented`
 
 - `Button`: três variantes. `primary` usa a cor da faixa do modo; `secondary` fica em `surface-raised` com borda; `ghost` é só texto. Sempre 44 px de altura; ícone `lucide` quando ajuda.

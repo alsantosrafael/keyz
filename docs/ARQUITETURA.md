@@ -43,7 +43,7 @@ keyz/
 ├─ shared/
 │  ├─ src/music/      Note, PitchClass, Chord, StaffPlacement, keyboard
 │  ├─ src/dsp/        YIN (pitch-detector), chroma, FFT, stabilizers, display-stabilizer, held-notes, mic-pipeline
-│  ├─ src/drills/     NoteDrill, ChordGenerator, ChordEvaluator, ChordRecognizer, DrillConfig, rating (estrelas)
+│  ├─ src/drills/     NoteDrill, ChordDrill, ChordGenerator, ChordEvaluator, ChordRecognizer, DrillConfig, rating (estrelas)
 │  ├─ src/onboarding/ passos do tutorial, transições de progresso, schema
 │  ├─ src/schemas/    Zod: ajustes, chaves de armazenamento, exercícios, MIDI
 │  ├─ src/changelog/  parser do CHANGELOG (texto puro)
@@ -90,7 +90,7 @@ keyz/
 | Chave | Conteúdo | Schema |
 | --- | --- | --- |
 | `keyz.settings.v1` | Ajustes do app | `settingsSchema` |
-| `keyz.best.v1` | Melhor marca por nível do Desafio | `bestMarksSchema` |
+| `keyz.best.v1` | Melhor marca por nível do Desafio (`easy`…, e `chords-easy`… para o modo acordes) | `bestMarksSchema` |
 | `keyz.drill.v1` | Ajustes personalizados do Desafio | `drillOverridesSchema` |
 | `keyz.onboarding.v1` | Progresso do tutorial e das dicas | `onboardingSchema` |
 

@@ -1,9 +1,9 @@
 import { type Note } from '../music/note'
 import { type Accidental, isBlackKey } from '../music/pitch-class'
 
-export type Difficulty = 'easy' | 'medium' | 'advanced'
-export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'advanced']
-export const difficultyName: Record<Difficulty, string> = { easy: 'Fácil', medium: 'Médio', advanced: 'Avançado' }
+export type Difficulty = 'easy' | 'medium' | 'advanced' | 'professional'
+export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'advanced', 'professional']
+export const difficultyName: Record<Difficulty, string> = { easy: 'Fácil', medium: 'Médio', advanced: 'Avançado', professional: 'Profissional' }
 
 /** Como a nota sorteada aparece para o usuário. */
 export type PromptStyle = 'name' | 'nameAndStaff' | 'staff'
@@ -50,8 +50,11 @@ export function drillPreset(difficulty: Difficulty): DrillConfig {
       // Duas oitavas com sustenidos/bemóis.
       return { ...base, difficulty, lowest: 60, highest: 83, includeAccidentals: true, timePerNote: 6, pauseBetweenNotes: 1.2, promptStyle: 'nameAndStaff' }
     case 'advanced':
-      // Três oitavas, clave de sol e de fá, pouco tempo, leitura só pela partitura.
-      return { ...base, difficulty, lowest: 48, highest: 84, includeAccidentals: true, timePerNote: 3, pauseBetweenNotes: 1.0, promptStyle: 'staff' }
+      // Três oitavas, clave de sol e de fá, pouco tempo. "Só partitura" é opção em Personalizar.
+      return { ...base, difficulty, lowest: 48, highest: 84, includeAccidentals: true, timePerNote: 4, pauseBetweenNotes: 1.0, promptStyle: 'nameAndStaff' }
+    case 'professional':
+      // Cinco oitavas (Dó2 a Mi6), muitas linhas suplementares, só partitura e pouco tempo.
+      return { ...base, difficulty, lowest: 36, highest: 88, includeAccidentals: true, timePerNote: 3, pauseBetweenNotes: 0.8, promptStyle: 'staff' }
   }
 }
 

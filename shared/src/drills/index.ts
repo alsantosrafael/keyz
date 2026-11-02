@@ -1,3 +1,4 @@
+export * from './chord-drill'
 export * from './chord-evaluator'
 export * from './chord-generator'
 export * from './chord-recognizer'

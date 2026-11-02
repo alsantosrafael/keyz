@@ -7,6 +7,8 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 - [ ] **Tutorial, passo 1 avança sozinho após 3,2 s.** Proposta atual. Confirmar, ou exigir um toque em "Continuar" (mais controle, um clique a mais).
 - [ ] **Convite do tutorial em qualquer tela no primeiro uso.** Proposta atual. Alternativa: convite só dentro do Acordes.
 - [ ] **Dicas de uma linha só para Desafio e Entrada.** Livre usa o cartão de boas-vindas que já existe. Confirmar.
+- [ ] **Desafio com acordes: validar com mão real.** Fatores de tempo (1,5×/2×/2,5× + 0,5× por inversão), espera de 0,9 s com a mão parada, conjunto e pesos do Avançado, inversões de tríade no Médio, e o piano tocando a resposta depois do erro. Implementado a partir de uma revisão pedagógica (sem acesso ao texto de "O Livro do Músico"); validar com professor.
+- [ ] **Nova feature: "Ouvir e tocar"** (decidido pelo mantenedor: sai do Desafio e vira feature própria). O som vem primeiro, sem nome na tela, e a pessoa toca de ouvido (nota ou acorde). Hoje o Desafio só toca a resposta certa depois do erro. Falta decidir: modo novo ou nível do Desafio, tipos de exercício (nota, intervalo, acorde), tempo, repetir o som, e como julgar com microfone. Não começou.
 - [ ] **Estrelas e sequência no Desafio**: limiares 60/80/90% e tempo médio abaixo de metade do tempo da nota. Implementado; confirmar que é a regra final.
 - [ ] **Som de feedback ligado por padrão só no Desafio.** Implementado; confirmar.
 - [ ] **Tema padrão**: seguir o sistema (implementado) ou sempre escuro, como o GarageBand.

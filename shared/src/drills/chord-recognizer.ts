@@ -8,7 +8,7 @@ export interface RecognizedChord {
 }
 
 export const inversionName = (inversion: number): string =>
-  inversion === 1 ? '1ª inversão' : inversion === 2 ? '2ª inversão' : 'posição fundamental'
+  inversion === 1 ? '1ª inversão' : inversion === 2 ? '2ª inversão' : inversion === 3 ? '3ª inversão' : 'posição fundamental'
 
 /** Grafia mais comum de cada acorde (ex.: Eb maior, mas C# menor). */
 export function preferredAccidental(root: PitchClass, quality: ChordQuality): Accidental {

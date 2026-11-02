@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Check, Clock, Pause, Play, SkipForward, Volume2, VolumeX, X } from 'lucide-react'
-import { pitchClass, solfegeName } from '@keyz/shared'
+import { chordQualityName, chordRootSolfege, chordSymbol, inversionName, pitchClass, solfegeName } from '@keyz/shared'
 import { StaffCard, type StaffNote } from '../../ui/StaffCard'
 import { Countdown, type RingState, TimeRing } from '../../ui/TimeRing'
 import { Button, IconButton } from '../../ui/controls'
@@ -17,6 +17,7 @@ export function Round() {
   const reveal = useUi((x) => x.reveal)
   const acc = s.config.accidental
   const showResult = s.screen === 'result' && s.result
+  const isChords = s.content === 'chords'
   const outcome = s.result?.outcome.kind
 
   // Garante que o alvo caiba na janela do teclado (nas telas estreitas a janela mostra poucas teclas).
@@ -28,26 +29,33 @@ export function Round() {
   const keyStates = useMemo(() => {
     const m = new Map<number, KeyVisual>()
     if (s.target === null) return m
-    if (s.screen === 'round' && s.hint) m.set(s.target, 'target')
+    if (s.screen === 'round' && s.hint) for (const n of s.targetNotes) m.set(n, 'target')
     if (showResult) {
-      if (outcome === 'correct') m.set(s.target, 'correct')
+      if (outcome === 'correct') for (const n of s.targetNotes) m.set(n, 'correct')
       else {
-        m.set(s.target, 'ghost')
-        if (s.result?.outcome.kind === 'wrong') m.set(s.result.outcome.played, 'wrong')
+        for (const n of s.targetNotes) m.set(n, 'ghost')
+        if (isChords) {
+          // Notas tocadas que não fazem parte do acorde ficam em erro.
+          const members = new Set(s.targetNotes.map(pitchClass))
+          for (const n of s.playedNotes) if (!members.has(pitchClass(n))) m.set(n, 'wrong')
+        } else if (s.result?.outcome.kind === 'wrong') m.set(s.result.outcome.played, 'wrong')
       }
     }
     return m
-  }, [s.target, s.screen, s.hint, s.result, showResult, outcome])
+  }, [s.target, s.targetNotes, s.playedNotes, isChords, s.screen, s.hint, s.result, showResult, outcome])
   usePublishKeyStates(keyStates)
 
   const staff = useMemo<StaffNote[]>(() => {
     if (s.target === null) return []
-    if (!showResult) return [{ midi: s.target, role: 'target' }]
-    if (outcome === 'correct') return [{ midi: s.target, role: 'correct' }]
-    const notes: StaffNote[] = [{ midi: s.target, role: 'ghost' }]
-    if (s.result?.outcome.kind === 'wrong') notes.push({ midi: s.result.outcome.played, role: 'wrong' })
+    if (!showResult) return s.targetNotes.map((midi) => ({ midi, role: 'target' as const }))
+    if (outcome === 'correct') return s.targetNotes.map((midi) => ({ midi, role: 'correct' as const }))
+    const notes: StaffNote[] = s.targetNotes.map((midi) => ({ midi, role: 'ghost' as const }))
+    if (isChords) {
+      const members = new Set(s.targetNotes.map(pitchClass))
+      for (const midi of s.playedNotes) if (!members.has(pitchClass(midi))) notes.push({ midi, role: 'wrong' })
+    } else if (s.result?.outcome.kind === 'wrong') notes.push({ midi: s.result.outcome.played, role: 'wrong' })
     return notes
-  }, [s.target, showResult, outcome, s.result])
+  }, [s.target, s.targetNotes, s.playedNotes, isChords, showResult, outcome, s.result])
 
   // Espaço, Esc pausam; Enter pula o resultado.
   const resumeRef = useRef<HTMLButtonElement>(null)
@@ -69,7 +77,10 @@ export function Round() {
   }, [s.paused, s.resuming])
 
   const style = s.config.promptStyle
-  const targetName = s.target === null ? '' : solfegeName(pitchClass(s.target), acc)
+  // Acorde: o anel já mostra a resposta no resultado; a frase diz só o que falta (evita três linhas atrás do teclado).
+  const shownResult = !isChords ? s.resultText : outcome === 'wrong' ? s.resultText.replace(/^Era .*?\. /, '') : outcome === 'timeout' ? 'Tempo esgotado' : s.resultText
+  // Acorde: raiz em solfejo grande; embaixo a qualidade, a cifra e, se pedida, a inversão.
+  const targetName = s.chord ? chordRootSolfege(s.chord) : s.target === null ? '' : solfegeName(pitchClass(s.target), acc)
   const ringState: RingState = showResult ? (outcome === 'correct' ? 'correct' : outcome === 'timeout' ? 'timeout' : 'wrong') : 'running'
   const ResultIcon = outcome === 'correct' ? Check : outcome === 'timeout' ? Clock : X
   const resultColor = outcome === 'correct' ? 'text-success' : outcome === 'timeout' ? 'text-warning' : 'text-failure'
@@ -96,8 +107,17 @@ export function Round() {
         <TimeRing duration={s.duration} elapsed={s.elapsed} roundKey={s.roundKey} paused={s.paused} state={ringState}>
           {style !== 'staff' || showResult ? (
             <div key={`${s.roundKey}-${s.screen}`} className="k-note-in flex flex-col items-center">
-              <div className="t-display">{targetName}</div>
-              <div className="t-readout text-muted">{s.target !== null ? `oitava ${Math.floor(s.target / 12) - 1}` : ''}</div>
+              {/* Acorde: raiz menor e o resto em linhas curtas, para nunca passar da largura do anel. */}
+              <div className="t-display" style={isChords ? { fontSize: 'clamp(40px, 11vw, 56px)' } : undefined}>{targetName}</div>
+              {isChords && s.chord ? (
+                <div className="flex max-w-[7.5rem] flex-col items-center text-center">
+                  <span className="t-label leading-tight text-muted">{chordQualityName(s.chord)}</span>
+                  <span className="t-readout">{chordSymbol(s.chord)}</span>
+                  {s.inversion > 0 && <span className="t-label leading-tight text-muted">{inversionName(s.inversion)}</span>}
+                </div>
+              ) : (
+                <div className="t-readout text-muted">{s.target !== null ? `oitava ${Math.floor(s.target / 12) - 1}` : ''}</div>
+              )}
             </div>
           ) : (
             <div className="t-display text-faint" aria-hidden>?</div>
@@ -114,7 +134,7 @@ export function Round() {
       <div className="min-h-[52px] text-center" onClick={() => drill.skipResult()}>
         {showResult && (
           <p className={cn('k-note-in t-headline inline-flex items-center justify-center gap-2', resultColor)}>
-            <ResultIcon size={22} strokeWidth={2} aria-hidden /> {s.resultText}
+            <ResultIcon size={22} strokeWidth={2} aria-hidden /> {shownResult}
             {outcome === 'correct' && s.result?.responseTime != null && <span className="t-readout text-muted">· {fmtSeconds(s.result.responseTime)} s</span>}
           </p>
         )}

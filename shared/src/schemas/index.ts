@@ -49,7 +49,7 @@ export function parseSettings(raw: unknown): Settings {
 }
 
 export const bestMarksSchema = z.partialRecord(
-  z.enum(DIFFICULTIES as unknown as [string, ...string[]]),
+  z.enum([...DIFFICULTIES, ...DIFFICULTIES.map((d) => `chords-${d}`)] as unknown as [string, ...string[]]),
   z.object({ stars: z.number().int().min(0).max(3), bestStreak: z.number().int().min(0) }),
 )
 export type BestMarks = z.infer<typeof bestMarksSchema>
