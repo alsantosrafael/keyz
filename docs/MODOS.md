@@ -123,6 +123,7 @@ Tela de configuração, em seções: **Teclado MIDI**, **Microfone**, **Teclado 
 
 - Em Safari e Firefox, o cartão MIDI explica que o navegador não oferece MIDI (sem erro em vermelho).
 - Sem permissão ou sem suporte, o microfone mostra "Microfone desligado" com a causa e oferece o teclado na tela.
+- **Permissão negada**: ao negar (ou o aparelho bloquear), abre a folha "Microfone bloqueado" com o caminho exato para liberar no aparelho (iPhone, Android ou computador) e os botões "Tentar de novo" e "Usar o teclado". A pílula, no estado negado, reabre essa folha. No iOS o `getUserMedia` só vale dentro de um gesto (`click`/`touchend`), por isso nada pode ser aguardado antes do pedido.
 - Se o sistema tirar o áudio no meio do uso (troca de aba, ligação, bloqueio da tela), o microfone mostra "Microfone pausado" com a explicação de que basta tocar em "Ativar microfone". Não aparece como "nenhum microfone encontrado".
 - **Recalibrar ruído**: pede silêncio, mostra uma barra de progresso (~1,5 s) com o botão desativado ("Calibrando…") e termina com o resultado anunciado em `aria-live`: ambiente silencioso, algum barulho (já ignorado) ou muito barulho (pede para tentar de novo em silêncio). Durante a calibração o microfone não gera notas.
 - **Zoom do teclado**: o controle em Ajustes vai até o máximo de teclas brancas que cabem com alvos de 44 px; quando a tela limita, o Ajuste explica o motivo em vez de ignorar o valor.

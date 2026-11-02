@@ -13,6 +13,7 @@ export class WebMicrophone implements MicrophonePort {
   private source: MediaStreamAudioSourceNode | null = null
   private worker: Worker | null = null
   private sensitivity = 0.5
+  private unwatch: (() => void) | null = null
 
   constructor(private readonly telemetry?: TelemetryPort) {}
 
@@ -77,8 +78,10 @@ export class WebMicrophone implements MicrophonePort {
       this.node = node
       this.source = source
       const track = stream.getAudioTracks()[0]
+      this.unwatch = this.keepRunning(ctx, track)
       if (track)
         track.onended = () => {
+          if (document.visibilityState === 'hidden') return // o sistema soltou em segundo plano: avisa ao voltar
           this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.trackEnded, 'track.ended'))
           this.lostListeners.forEach((l) => l())
         }
@@ -96,8 +99,35 @@ export class WebMicrophone implements MicrophonePort {
     }
   }
 
+  /**
+   * No celular o sistema suspende/interrompe o AudioContext (aba em segundo plano, tela bloqueada,
+   * ligação, o próprio som do app no iOS). Sem retomar, nenhum quadro chega e o microfone parece morto.
+   */
+  private keepRunning(ctx: AudioContext, track: MediaStreamTrack | undefined): () => void {
+    const retomar = () => {
+      if (ctx.state !== 'running') void ctx.resume().catch(() => {})
+    }
+    const aoVoltar = () => {
+      if (document.visibilityState !== 'visible') return
+      retomar()
+      if (track && track.readyState === 'ended') this.lostListeners.forEach((l) => l())
+    }
+    ctx.addEventListener('statechange', retomar)
+    document.addEventListener('visibilitychange', aoVoltar)
+    window.addEventListener('pageshow', aoVoltar)
+    track?.addEventListener('unmute', retomar)
+    return () => {
+      ctx.removeEventListener('statechange', retomar)
+      document.removeEventListener('visibilitychange', aoVoltar)
+      window.removeEventListener('pageshow', aoVoltar)
+      track?.removeEventListener('unmute', retomar)
+    }
+  }
+
   stop(): void {
     this.gen += 1
+    this.unwatch?.()
+    this.unwatch = null
     this.source?.disconnect()
     this.node?.disconnect()
     this.node?.port.close()

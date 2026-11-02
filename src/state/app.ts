@@ -175,8 +175,11 @@ export const useDevices = create<{ midi: string[]; midiStatus: 'pending' | 'read
 /** Liga ou desliga o microfone, guardando a escolha. */
 export async function setMicrophone(enabled: boolean): Promise<void> {
   const { mic } = getApp()
-  await services().piano.resume()
+  // iOS: `getUserMedia` precisa ser chamado ainda dentro do gesto. Nada de `await` antes dele.
+  void services().piano.resume()
   await mic.setEnabled(enabled)
   const ok = !micComFalha(mic.snapshot.status.kind)
   useSettings.getState().update({ microphoneEnabled: enabled && ok })
+  // Negado: abre a explicação de como liberar, em vez de só desligar em silêncio.
+  if (enabled && mic.snapshot.status.kind === 'denied') useUi.getState().setMicPrompt(true)
 }

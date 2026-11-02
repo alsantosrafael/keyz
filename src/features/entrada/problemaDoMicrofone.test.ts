@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { problemaDoMicrofone } from './problemaDoMicrofone'
+import { detectarPlataforma, problemaDoMicrofone } from './problemaDoMicrofone'
 
 describe('problemaDoMicrofone', () => {
   it('interrupção pelo sistema pede para tocar em Ativar, sem falar em "microfone não encontrado"', () => {
@@ -21,5 +21,18 @@ describe('problemaDoMicrofone', () => {
     for (const kind of ['off', 'starting', 'silence', 'hearing', 'note', 'chord', 'noisy'] as const) {
       expect(problemaDoMicrofone({ kind } as never)).toBeNull()
     }
+  })
+
+  it('permissão negada orienta conforme o aparelho', () => {
+    expect(problemaDoMicrofone({ kind: 'denied' }, 'ios')).toContain('aA')
+    expect(problemaDoMicrofone({ kind: 'denied' }, 'android')).toContain('Android')
+    expect(problemaDoMicrofone({ kind: 'denied' })).toContain('ícone ao lado do endereço')
+  })
+
+  it('reconhece iPhone, iPad moderno e Android', () => {
+    expect(detectarPlataforma('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)')).toBe('ios')
+    expect(detectarPlataforma('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 5)).toBe('ios')
+    expect(detectarPlataforma('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 0)).toBe('outra')
+    expect(detectarPlataforma('Mozilla/5.0 (Linux; Android 14)')).toBe('android')
   })
 })

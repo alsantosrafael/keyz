@@ -56,10 +56,20 @@ export function bootstrap(): void {
     window.removeEventListener('pointerdown', onFirstGesture, true)
     window.removeEventListener('keydown', onFirstGesture, true)
     void services.piano.resume()
-    if (useSettings.getState().settings.microphoneEnabled) void setMicrophone(true)
   }
   window.addEventListener('pointerdown', onFirstGesture, true)
   window.addEventListener('keydown', onFirstGesture, true)
+
+  // O microfone religa num gesto que o iOS aceita para `getUserMedia` (`pointerdown` não vale lá).
+  const religarMicrofone = () => {
+    window.removeEventListener('click', religarMicrofone, true)
+    window.removeEventListener('touchend', religarMicrofone, true)
+    window.removeEventListener('keydown', religarMicrofone, true)
+    if (useSettings.getState().settings.microphoneEnabled) void setMicrophone(true)
+  }
+  window.addEventListener('click', religarMicrofone, true)
+  window.addEventListener('touchend', religarMicrofone, true)
+  window.addEventListener('keydown', religarMicrofone, true)
 }
 
 /** Erros globais não tratados viram `app.error`. */
