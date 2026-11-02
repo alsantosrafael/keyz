@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/alsantosrafael/keyz/compare/v0.4.0...v0.4.1) (2026-11-02)
+
+
+### Correções
+
+* **microfone:** trata interrupção pelo sistema no celular ([#27](https://github.com/alsantosrafael/keyz/issues/27)) ([78b8150](https://github.com/alsantosrafael/keyz/commit/78b81508f1bf5a183d42c1bc95d1ea106df7e98f))
+
 ## [0.4.0](https://github.com/alsantosrafael/keyz/compare/v0.3.1...v0.4.0) (2026-11-01)
 
 
