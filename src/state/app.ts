@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import {
-  ChordSession, DrillSession, type Emitter, TutorialSession, FreeSession, InputHub, MicController, type MicSnapshot, connectSound, services,
+  ChordSession, DrillSession, type Emitter, TutorialSession, FreeSession, InputHub, MicController, type MicSnapshot, connectSound, micComFalha, services,
   type ChordSnapshot, type DrillSnapshot, type FreeSnapshot,
 } from '../application'
 import { STORAGE_KEYS, type Settings, defaultSettings, parseSettings, settingsSchema } from '@keyz/shared'
@@ -177,6 +177,6 @@ export async function setMicrophone(enabled: boolean): Promise<void> {
   const { mic } = getApp()
   await services().piano.resume()
   await mic.setEnabled(enabled)
-  const ok = mic.snapshot.status.kind !== 'denied' && mic.snapshot.status.kind !== 'unsupported' && mic.snapshot.status.kind !== 'no-device' && mic.snapshot.status.kind !== 'interrupted' && mic.snapshot.status.kind !== 'failed'
+  const ok = !micComFalha(mic.snapshot.status.kind)
   useSettings.getState().update({ microphoneEnabled: enabled && ok })
 }

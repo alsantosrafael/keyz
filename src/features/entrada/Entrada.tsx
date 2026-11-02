@@ -1,13 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, Keyboard, Loader2, Mic, MicOff, Piano, RefreshCw } from 'lucide-react'
 import { noteLabel } from '@keyz/shared'
-import type { CalibrationState, InputSource } from '../../application'
+import { type CalibrationState, type InputSource, micComFalha } from '../../application'
 import { Button, Slider } from '../../ui/controls'
 import { LevelMeter } from '../../ui/Meter'
 import { LiveRegion } from '../../ui/LiveRegion'
 import { cn } from '../../ui/cn'
 import { getApp, setMicrophone, useDevices, useMic, useSettings } from '../../state/app'
 import { micLabel } from '../shell/InputPill'
+import { problemaDoMicrofone } from './problemaDoMicrofone'
 import { usePublishKeyStates } from '../common/hooks'
 import { ModeTip } from '../onboarding/ModeTip'
 
@@ -85,17 +86,9 @@ export function Entrada() {
   const midiLast = useLastReceived('midi')
   const computerLast = useLastReceived('computer')
   const micLast = useLastReceived('mic')
-  const micOn = status.kind !== 'off' && !['denied', 'unsupported', 'no-device', 'interrupted', 'failed'].includes(status.kind)
+  const micOn = status.kind !== 'off' && !micComFalha(status.kind)
 
-  const micProblem =
-    status.kind === 'denied' ? 'Permissão negada. Libere o microfone nas configurações do site (ícone ao lado do endereço) e tente de novo. O teclado na tela continua funcionando.'
-    : status.kind === 'unsupported' ? 'Este navegador não permite usar o microfone aqui. O teclado na tela continua funcionando.'
-    : status.kind === 'no-device' ? 'Nenhum microfone encontrado. O teclado na tela continua funcionando.'
-    : status.kind === 'interrupted' ? 'O microfone parou (troca de aba, ligação ou bloqueio tirou o áudio). Toque em Ativar microfone para continuar.'
-    : status.kind === 'failed' ? `Não foi possível iniciar o áudio: ${status.message}`
-    : status.kind === 'blocked' ? 'O sistema está bloqueando o áudio do microfone (nível zero). Verifique a permissão do navegador.'
-    : status.kind === 'no-audio' ? 'Nenhum áudio chegando do microfone.'
-    : null
+  const micProblem = problemaDoMicrofone(status)
 
   return (
     <div className="flex flex-col gap-4">
