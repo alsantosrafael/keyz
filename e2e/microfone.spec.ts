@@ -20,7 +20,8 @@ test.beforeEach(async ({ page }) => {
 test('sistema interrompe o microfone: mostra "pausado" e Ativar microfone retoma', async ({ page }) => {
   await page.goto('/entrada')
   await cartao(page).getByRole('button', { name: 'Ativar microfone' }).click()
-  await expect(cartao(page).getByRole('button', { name: 'Desligar' })).toBeVisible()
+  // Espera o microfone de fato ouvir (não só "Iniciando"): só aí a faixa tem o handler de fim.
+  await expect(cartao(page).getByText('Ouvindo')).toBeVisible()
 
   // O sistema tira o áudio (troca de aba, ligação, bloqueio): a faixa termina.
   await page.evaluate(() => (window as unknown as { __faixa: MediaStreamTrack }).__faixa.dispatchEvent(new Event('ended')))
