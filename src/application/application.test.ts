@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { MicFrame } from '@keyz/shared'
 import { ChordSession } from './chord-session'
+import { chordVoicing } from './chord-voicing'
 import { DrillSession } from './drill-session'
 import { FreeSession } from './free-session'
 import { InputHub, computerKeyLabel, computerKeyOffset } from './input-hub'
@@ -255,6 +256,99 @@ describe('DrillSession', () => {
     expect(s.session.snapshot.screen).toBe('result')
     s.time.advance(500)
     expect(s.session.snapshot.screen).toBe('round')
+  })
+
+  it('erro na oitava diz qual oitava foi tocada', () => {
+    const s = setup()
+    startRound(s)
+    const target = s.session.snapshot.target!
+    s.hub.press(target + 12, 'screen')
+    expect(s.session.snapshot.result?.outcome.kind).toBe('wrong')
+    expect(s.session.snapshot.resultText).toMatch(/\(oitava \d\)\. Você tocou .+ \(oitava \d\)$/)
+  })
+
+  describe('modo acordes', () => {
+    const startChords = (s: ReturnType<typeof setup>) => {
+      s.session.selectContent('chords')
+      startRound(s)
+    }
+
+    it('o alvo é um acorde, com mais tempo, e tocar as notas dele acerta', () => {
+      const s = setup()
+      s.session.selectContent('chords')
+      s.session.play()
+      s.time.advance(4100)
+      expect(s.session.snapshot.duration).toBe(15)
+      const { chord, inversion } = s.session.snapshot
+      expect(chord).not.toBeNull()
+      expect(inversion).toBe(0)
+      for (const n of chordVoicing(chord!)) s.hub.press(n, 'screen')
+      expect(s.session.snapshot.result?.outcome.kind).toBe('correct')
+      expect(s.session.snapshot.announce).toMatch(/^Acertou, /)
+      expect(s.session.snapshot.streak).toBe(1)
+    })
+
+    it('erro mostra o acorde certo e o que foi tocado, e a melhor marca é separada das notas', () => {
+      const s = setup()
+      startChords(s)
+      const { chord } = s.session.snapshot
+      const wrong = chordVoicing(chord!).map((n, i) => (i === 1 ? n + 1 : n))
+      for (const n of wrong) s.hub.press(n, 'screen')
+      s.hub.releaseAll()
+      expect(s.session.snapshot.result?.outcome.kind).toBe('wrong')
+      expect(s.session.snapshot.resultText).toMatch(/^Era .+\. Você tocou /)
+      expect(s.session.snapshot.playedNotes).toHaveLength(3)
+    })
+
+    it('depois do erro o piano toca a resposta certa; acerto não toca nada', () => {
+      const s = setup()
+      startChords(s)
+      const { chord } = s.session.snapshot
+      for (const n of chordVoicing(chord!)) s.hub.press(n, 'screen')
+      s.hub.releaseAll()
+      s.time.advance(1000)
+      expect(s.log.filter((l) => l.startsWith('chord:'))).toHaveLength(0)
+      s.time.advance(1600)
+      const t = setup()
+      startChords(t)
+      const c2 = t.session.snapshot.chord!
+      const wrong = chordVoicing(c2).map((n, i) => (i === 1 ? n + 1 : n))
+      for (const n of wrong) t.hub.press(n, 'screen')
+      t.hub.releaseAll()
+      t.time.advance(600)
+      expect(t.log.some((l) => l.startsWith('chord:'))).toBe(true)
+    })
+
+    it('resumo lista os acordes que mais deram erro, com contagem', () => {
+      const s = setup()
+      s.session.selectContent('chords')
+      s.session.customize({ rounds: 1 })
+      s.session.play()
+      s.time.advance(4100)
+      const { chord } = s.session.snapshot
+      const wrong = chordVoicing(chord!).map((n, i) => (i === 1 ? n + 1 : n))
+      for (const n of wrong) s.hub.press(n, 'screen')
+      s.hub.releaseAll()
+      s.time.advance(1600)
+      const sum = s.session.snapshot.summary!
+      expect(sum.hardest).toEqual([])
+      expect(sum.hardestDetail).toEqual([{ label: expect.any(String), misses: 1, attempts: 1 }])
+      expect(s.services.storage.read('keyz.best.v1')).toHaveProperty('chords-easy')
+      expect(s.services.storage.read('keyz.best.v1')).not.toHaveProperty('easy')
+    })
+  })
+
+  it('resumo de notas lista as notas difíceis com contagem de erros', () => {
+    const s = setup()
+    s.session.customize({ rounds: 1 })
+    startRound(s)
+    const target = s.session.snapshot.target!
+    s.hub.press(target === 60 ? 62 : 60, 'screen')
+    s.hub.releaseAll()
+    s.time.advance(1600)
+    const sum = s.session.snapshot.summary!
+    expect(sum.hardest).toEqual([target])
+    expect(sum.hardestDetail).toEqual([{ label: expect.stringMatching(/ \d$/), misses: 1, attempts: 1 }])
   })
 
   it('pular o resultado avança de imediato', () => {

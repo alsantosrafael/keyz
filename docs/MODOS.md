@@ -36,13 +36,33 @@ Notas: acordes são maiores e menores (`ChordGenerator`). Acordes com sétima, i
 
 Jogo de reflexo e leitura de notas. Ciclo: Lobby → Contagem 3·2·1 → Rodada ↔ Resultado → Resumo. Meta: o ciclo nota → toque → resposta dura menos de 3 segundos e nunca deixa tela parada esperando o usuário.
 
-**Lobby**: três níveis (Fácil, Médio, Avançado), cada um com cor, ícone de dificuldade e melhor marca. "Jogar" fica a um toque. "Personalizar" abre o painel (celular: folha de baixo) com Tempo, Notas, Exibição e Sessão. O nível guarda a última configuração.
+**Treinar: Notas ou Acordes** (seletor no topo do Lobby). Vale para a sessão, começa em Notas e não fica guardado. Em Acordes, a rodada pede um acorde e a pessoa toca as notas dele, em qualquer oitava:
+
+| Nível | O que sorteia | Baixo (inversão) |
+| --- | --- | --- |
+| Fácil | maiores e menores, só raízes brancas | não conta |
+| Médio | maiores e menores, todas as raízes (sustenido ou bemol, conforme "Escrever como") | tríades podem vir invertidas: a nota mais grave tocada precisa ser a do baixo pedido |
+| Avançado | maiores e menores, mais sétima, sétima maior, menor com sétima, sus2, sus4, diminuto e aumentado | qualquer acorde pode vir invertido (até a 3ª inversão) |
+| Profissional | tudo do Avançado, mais add9, sextas (6, m6), nonas (9, maj9, m9), sétima com nona menor ou aumentada (7♭9, 7♯9), 7sus4, menor com sétima maior, meio-diminuto (m7♭5) e diminuto com sétima | igual ao Avançado |
+
+Sorteio do Avançado e do Profissional com pesos: sétimas e tríades aparecem mais; alterados e os de cor mais rara, menos.
+
+**Nomes**: o alvo aparece em solfejo com a cifra, por exemplo "Sol com sétima (G7)". A cifra ajuda quem vai ler partitura e cifra; o solfejo mantém a leitura de quem aprendeu por Dó, Ré, Mi.
+
+**Tempo da rodada** (múltiplo do tempo do nível): tríade 1,5×; acorde de 4 notas 2×; de 5 notas 2,5×; inversão soma 0,5×.
+
+O acerto vale no instante em que as notas batem. O erro vale ao soltar com notas suficientes, ou com a mão parada em notas erradas por 0,9 s; soltar com menos notas que o acorde é procura e não conta. No microfone a inversão não é exigida (ele não sabe qual nota está no baixo). **Estrelas em Acordes** contam só a precisão (1 com 60%, 2 com 80%, 3 com 90%); em Notas ainda entra o tempo médio. As melhores marcas de Acordes são separadas das de Notas. "Treinar notas difíceis" só existe em Notas.
+
+**Depois do erro ou do tempo esgotado, o piano toca a resposta certa** (a nota, ou o acorde), para o ouvido aprender junto com o olho. Acerto não toca nada além do que a pessoa tocou.
+
+**Lobby**: quatro níveis (Fácil, Médio, Avançado, Profissional), cada um com cor, ícone de dificuldade e melhor marca. "Jogar" fica a um toque. "Personalizar" abre o painel (celular: folha de baixo) com Tempo, Notas, Exibição e Sessão. O nível guarda a última configuração.
 
 | Nível | Tempo | Dica no teclado | Pausa automática | Tom |
 | --- | --- | --- | --- | --- |
 | Fácil | 10 s | ligada | 1,5 s | calmo, nome da nota |
-| Médio | 6 s | desligada | 1 s | equilibrado, nome e pauta |
-| Avançado | 3 s | desligada | 0,7 s | rápido, só pauta |
+| Médio | 6 s | desligada | 1,2 s | equilibrado, nome e pauta |
+| Avançado | 4 s | desligada | 1 s | rápido, nome e pauta ("Só pauta" é opção em Personalizar) |
+| Profissional | 3 s | desligada | 0,8 s | exigente, só pauta; Dó2 a Mi6 (cinco oitavas, muitas linhas suplementares) |
 
 Valores iniciais vindos do `DrillConfig.preset`. Ajustes feitos pelo jogador valem para a sessão e ficam em "Personalizar".
 
@@ -60,7 +80,7 @@ Regras: erro e tempo nunca usam tela vermelha cheia. O erro fica visível no mí
 
 **Sequência e estrelas**: sequência de acertos com marcos em 5, 10 e 20. Estrelas (1 a 3) ao fim: 1 com 60% de acerto ou mais; 2 com 80%; 3 com 90% e tempo médio abaixo de metade do tempo da nota (regra pura em `shared/src/drills/rating.ts`). Sem vidas e sem game over.
 
-**Resumo**: estrelas aparecem uma a uma com mola e tom; percentual conta de 0 ao valor; três fichas (Maior sequência, Tempo médio, Notas) e as notas mais difíceis na pauta. Botões: "Jogar de novo", "Mudar nível", "Treinar notas difíceis" (sessão curta só com as notas que erraram). Com movimento reduzido, o resumo aparece completo de uma vez.
+**Resumo**: estrelas aparecem uma a uma com mola e tom; percentual conta de 0 ao valor; três fichas (Maior sequência, Tempo médio, Notas) e os itens mais difíceis (até 3) com quantas vezes errou em quantas apareceu, mais as notas na pauta (só em Notas). Sessão sem erro mostra "Nenhum erro nesta sessão". Botões: "Jogar de novo", "Mudar nível", "Treinar notas difíceis" (sessão curta só com as notas que erraram). Com movimento reduzido, o resumo aparece completo de uma vez.
 
 **Melhor marca** por nível (estrelas e maior sequência), guardada no navegador (`keyz.best.v1`), aparece no Lobby.
 

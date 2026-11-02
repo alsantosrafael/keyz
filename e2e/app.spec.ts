@@ -85,6 +85,39 @@ test('Desafio: lobby → contagem → rodada → acerto → pausa', async ({ pag
   await page.getByRole('button', { name: 'Retomar' }).click()
 })
 
+test('Desafio com acordes: escolhe Acordes no lobby e a rodada pede um acorde', async ({ page }) => {
+  await page.goto('/desafio')
+  await page.getByRole('radio', { name: /Acordes/ }).click()
+  await expect(page.getByText(/Maiores e menores · raízes brancas/)).toBeVisible()
+  await page.getByRole('button', { name: 'Jogar' }).click()
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 8000 })
+  await expect(page.getByRole('status').first()).toHaveText(/Toque .+ (maior|menor)/)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Sair do jogo' }).click()
+  await expect(page.getByRole('radio', { name: /Acordes/ })).toBeVisible()
+})
+
+test('Desafio com acordes: o acorde mais longo cabe dentro do anel', async ({ page }) => {
+  test.setTimeout(60000)
+  // Sorteio fixo no último acorde (Si com sétima e nona aumentada) e na maior inversão.
+  await page.addInitScript(() => { Math.random = () => 0.9999 })
+  await page.goto('/desafio')
+  await page.getByRole('radio', { name: /Acordes/ }).click()
+  await page.getByRole('radio', { name: /Profissional/ }).click()
+  await page.getByRole('button', { name: /Jogar/ }).click()
+  // Esgota o tempo: o resultado mostra o nome do acorde dentro do anel, em qualquer nível.
+  await expect(page.getByText('Tempo esgotado', { exact: true })).toBeVisible({ timeout: 30000 })
+  const folga = await page.evaluate(() => {
+    const anel = document.querySelector('svg[viewBox="0 0 200 200"]')!.parentElement!
+    const caixa = anel.getBoundingClientRect()
+    const filhos = [...anel.querySelectorAll('.k-note-in, .k-note-in *')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 0)
+    return { n: filhos.length, minimo: Math.min(...filhos.map((b) => Math.min(b.left - caixa.left, caixa.right - b.right))) / caixa.width }
+  })
+  expect(folga.n).toBeGreaterThan(0)
+  // Pelo menos 15% da largura do anel livre de cada lado.
+  expect(folga.minimo).toBeGreaterThan(0.15)
+})
+
 test('Acordes: monta o acorde e o anel fecha', async ({ page }) => {
   await page.goto('/acordes')
   await expect(page.getByRole('heading', { name: 'Modo Acordes' })).toBeAttached()

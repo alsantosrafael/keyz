@@ -29,7 +29,7 @@ export class DrillStats {
     return this.correct === 0 ? null : this.totalResponseTime / this.correct
   }
 
-  record(result: DrillResult): void {
+  record(result: Pick<DrillResult, 'outcome' | 'responseTime'>): void {
     this.attempts += 1
     switch (result.outcome.kind) {
       case 'correct':
