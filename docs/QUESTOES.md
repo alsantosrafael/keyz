@@ -13,6 +13,7 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 - [ ] **Teclado em celular retrato**: janela de 8 a 10 teclas brancas com a nota-alvo trazida para a janela (`reveal`). Aceitável, ou forçar paisagem no Desafio?
 - [ ] **Acordes: sessão de 10 rodadas com resumo.** O Swift era contínuo. Confirmar.
 - [ ] **Acordes: avanço automático depois de acerto.** O Swift cancelava se a mão soltasse antes de 1,2 s; o web mantém o avanço. Confirmar que é a intenção.
+- [ ] **Acordes: validar 1,5 s de mão parada e 6 s para a dica** com mão real (teclado MIDI e na tela), em iniciante e em quem já toca.
 - [ ] **Piano**: síntese aditiva (atual, sem download) ou samples sob demanda (smplr)? A porta `PianoPort` isola a troca.
 - [ ] **Publicação**: site público (já no ar em `keyz-9ir.pages.dev`), PWA instalável (não feito) ou uso local?
 - [ ] **Telemetria técnica: opt-out em Ajustes.** Hoje só `Sec-GPC` e `Do Not Track` desligam o envio de erros técnicos. Decidir se entra um interruptor em Ajustes (ligado por padrão ou desligado) e o texto dele.
@@ -32,6 +33,8 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 - [ ] **Limite de criação de issues por `/api/reportar`.** Hoje não há teto nem deduplicação. Ver `docs/SEGURANCA.md` §1.5; o envio de telemetria já tem seus tetos no cliente.
 
 ## Decididas
+
+- [x] **Acordes: quando julgar** (2026-11-02). Feedback ao vivo sem penalidade; acerto imediato quando as notas batem; erro só ao soltar (com notas suficientes) ou com a mão parada 1,5 s; soltar com menos notas é procura e não conta; dica sem erro após 6 s. Os tempos (1,5 s e 6 s) são valores iniciais a validar com mão real. "Mostrar resposta" tira a rodada da estatística. Regras em `docs/MODOS.md`.
 
 - [x] **O app Swift (`keyz-mac/`) saiu do repositório** (2026-11-01, pelo mantenedor). Continua no histórico do git (commit `f0d1e34`). A paridade funcional fica com `shared/test/` como referência. Antes, era a questão "o app Swift continua em paralelo?".
 - [x] **Repositório**: monorepo. App web na raiz, `shared/` ao lado.
