@@ -20,6 +20,14 @@ export type MicStatus =
   | { kind: 'note'; note: number }
   | { kind: 'chord'; pitchClasses: PitchClass[] }
 
+const ESTADOS_COM_FALHA: ReadonlySet<MicStatus['kind']> = new Set(['denied', 'unsupported', 'no-device', 'interrupted', 'failed'])
+
+/**
+ * O microfone não está disponível por falha, bloqueio ou interrupção do sistema.
+ * Pílula, Entrada, relatório e `setMicrophone` usam esta única regra.
+ */
+export const micComFalha = (kind: MicStatus['kind']): boolean => ESTADOS_COM_FALHA.has(kind)
+
 /** Estado da calibração de ruído, para dar retorno claro na tela. */
 export type CalibrationState =
   | { kind: 'idle' }

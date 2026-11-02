@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Loader2, Send } from 'lucide-react'
 import { REPORT_TYPES, MAX_FIELD, MAX_TITLE, type Report, type ReportContext, reportSchema, reportType } from '@keyz/shared'
-import { services } from '../../application'
+import { micComFalha, services } from '../../application'
 import { Button, Sheet } from '../../ui/controls'
 import { cn } from '../../ui/cn'
 import { useDevices, useMic, useSettings, useUi } from '../../state/app'
@@ -32,7 +32,7 @@ function useReportContext(): ReportContext {
   const midi = useDevices((s) => s.midi)
   const mode = modeForPath(window.location.pathname)
   const inputs = [
-    micKind !== 'off' && !['denied', 'unsupported', 'no-device', 'interrupted', 'failed'].includes(micKind) ? 'microfone' : null,
+    micKind !== 'off' && !micComFalha(micKind) ? 'microfone' : null,
     midi.length ? 'MIDI' : null,
     'tela/teclado',
   ].filter(Boolean)
