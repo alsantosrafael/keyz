@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/alsantosrafael/keyz/compare/v0.4.1...v0.4.2) (2026-11-02)
+
+
+### Correções
+
+* **microfone:** centraliza falha do microfone e remove retomada por aba ([#29](https://github.com/alsantosrafael/keyz/issues/29)) ([27ae460](https://github.com/alsantosrafael/keyz/commit/27ae4603a6f612c75dbfcd28bf2622a50f73747e))
+
 ## [0.4.1](https://github.com/alsantosrafael/keyz/compare/v0.4.0...v0.4.1) (2026-11-02)
 
 
