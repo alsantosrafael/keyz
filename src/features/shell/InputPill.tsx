@@ -67,7 +67,7 @@ export function InputPill() {
       {!off && (
         <button
           type="button"
-          onClick={() => navigate('/entrada')}
+          onClick={() => (status.kind === 'denied' ? setPrompt(true) : navigate('/entrada'))}
           className={cn('t-label inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border px-3', status.kind === 'noisy' ? 'border-warning' : 'border-line bg-raised')}
           title={micLabel(status.kind)}
         >

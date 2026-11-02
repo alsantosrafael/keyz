@@ -8,7 +8,7 @@ import { LiveRegion } from '../../ui/LiveRegion'
 import { cn } from '../../ui/cn'
 import { getApp, setMicrophone, useDevices, useMic, useSettings } from '../../state/app'
 import { micLabel } from '../shell/InputPill'
-import { problemaDoMicrofone } from './problemaDoMicrofone'
+import { detectarPlataforma, problemaDoMicrofone } from './problemaDoMicrofone'
 import { usePublishKeyStates } from '../common/hooks'
 import { ModeTip } from '../onboarding/ModeTip'
 
@@ -88,7 +88,7 @@ export function Entrada() {
   const micLast = useLastReceived('mic')
   const micOn = status.kind !== 'off' && !micComFalha(status.kind)
 
-  const micProblem = problemaDoMicrofone(status)
+  const micProblem = problemaDoMicrofone(status, detectarPlataforma(navigator.userAgent, navigator.maxTouchPoints))
 
   return (
     <div className="flex flex-col gap-4">
