@@ -33,7 +33,7 @@ export interface MicrophonePort {
   start(): Promise<MicStartResult>
   stop(): void
   onFrame(cb: (f: MicFrame) => void): () => void
-  /** Dispositivo removido durante o uso. */
+  /** O microfone parou durante o uso (o sistema interrompeu ou o aparelho saiu). */
   onLost?(cb: () => void): () => void
   setSensitivity(v: number): void
   recalibrate(): void
