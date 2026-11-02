@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Keyboard, Mic, MicOff, Piano, TriangleAlert } from 'lucide-react'
 import { cn } from '../../ui/cn'
+import { micComFalha } from '../../application'
 import { getApp, useDevices, useMic, useUi } from '../../state/app'
 
 export function micLabel(kind: string): string {
@@ -41,7 +42,7 @@ export function InputPill() {
   const status = useMic((s) => s.status)
   const setPrompt = useUi((s) => s.setMicPrompt)
   const off = status.kind === 'off'
-  const failed = ['denied', 'unsupported', 'no-device', 'interrupted', 'failed'].includes(status.kind)
+  const failed = micComFalha(status.kind)
   const listening = ['silence', 'hearing', 'note', 'chord', 'noisy'].includes(status.kind)
 
   return (
