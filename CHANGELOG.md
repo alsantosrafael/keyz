@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/alsantosrafael/keyz/compare/v0.5.1...v0.6.0) (2026-11-02)
+
+
+### Novidades
+
+* **desafio:** treino de acordes, nível Profissional e Lobby redesenhado ([#35](https://github.com/alsantosrafael/keyz/issues/35)) ([bbcb368](https://github.com/alsantosrafael/keyz/commit/bbcb368f5b4fa17b001f4741e120cc64ed070f30))
+
 ## [0.5.1](https://github.com/alsantosrafael/keyz/compare/v0.5.0...v0.5.1) (2026-11-02)
 
 
