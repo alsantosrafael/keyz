@@ -13,7 +13,22 @@ Monte o acorde segurando as teclas. Um acorde-alvo aparece; as notas certas acen
 - Acorde errado: a dica diz o que faltou ou o que sobrou ("Faltou Mi", "Nota a mais: Ré"). Notas erradas piscam em `failure`. O que falta aparece como `ghost` depois de julgar ou com "Mostrar resposta".
 - Controles: "Mostrar resposta", "Pular", "Maiores", "Menores", "Avançar sozinho".
 - Sequência de acertos (chama e número) no HUD.
-- Julgamento só começa depois que a mão fica parada; se a mão solta antes, avalia na hora. Trocar de acorde ignora as notas que ainda estão presas até soltar.
+
+**Feedback e veredito são separados.** Montar um acorde leva tempo (procurar as teclas, corrigir uma nota), então o app não julga no meio do gesto:
+
+| Situação | O que acontece |
+| --- | --- |
+| Tecla pressionada | Feedback ao vivo, no mesmo quadro, sem som e sem penalidade: tecla do acorde em `chord-member`, tecla errada com X, anel enchendo |
+| Notas pressionadas agora são exatamente o acorde (oitava e inversão ignoradas) | **Acerto imediato**, sem atraso. Tirar a nota errada sem soltar tudo e fechar o acorde vale (no microfone vale o acumulado da pegada, porque as notas decaem) |
+| Soltou tudo tendo tocado ao menos o número de notas do acorde | Veredito de erro: som, vibração, "Faltou…", conta a tentativa |
+| Mão parada por 1,5 s com ao menos o número de notas, ainda erradas | O mesmo veredito, sem precisar soltar (`HOLD_VERDICT_MS`) |
+| Soltou com menos notas que o acorde | É procura, não resposta: nada é contado, sem som |
+| Nova tecla depois de um erro | O erro sai da tela e é uma nova tentativa |
+| 6 s sem progresso (`HELP_HINT_MS`) | Dica sem erro contado: "Falta: Mi, Sol", ou "Notas do acorde: …" se nada foi tocado |
+
+- Só a primeira tentativa da rodada conta para a estatística; acertar depois de errar não conta como acerto.
+- **"Mostrar resposta"** acende as teclas faltantes e escreve a resposta por extenso ("Resposta: Fá♯ menor: Fá♯, Lá, Dó♯"), anunciada em `aria-live`. A rodada em que foi usada **não entra na estatística**: nem acerto, nem erro, nem muda a sequência.
+- **A sessão só escuta o teclado com a tela de Acordes aberta.** Tocar no Livre, no Desafio, na Entrada ou durante o tutorial não julga, não soa e não avança rodadas. Ao voltar, teclas que já estavam presas só voltam a contar depois de soltar. Trocar de acorde ignora as notas que ainda estão presas até soltar.
 
 Notas: acordes são maiores e menores (`ChordGenerator`). Acordes com sétima, inversões e outros tipos não existem na v1.
 

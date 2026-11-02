@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Check, Eye, RotateCcw, SkipForward } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { Check, Eye, Lightbulb, RotateCcw, SkipForward } from 'lucide-react'
 import { chordOrderedPitchClasses, pitchClass, solfegeName } from '@keyz/shared'
 import { StaffCard, type StaffNote } from '../../ui/StaffCard'
 import { TimeRing } from '../../ui/TimeRing'
@@ -48,6 +48,12 @@ function ChordPractice() {
   const accidental = useSettings((x) => x.settings.accidental)
   const first = useUi((x) => x.firstWhite)
   const visible = useUi((x) => x.visibleWhites)
+
+  // A sessão só escuta o teclado enquanto esta tela está aberta (nem em outras abas, nem no tutorial).
+  useEffect(() => {
+    chords.setActive(true)
+    return () => chords.setActive(false)
+  }, [chords])
 
   const keyStates = useMemo(() => {
     const m = new Map<number, KeyVisual>()
@@ -103,6 +109,8 @@ function ChordPractice() {
         {s.evaluation.missing.size > 0 && <>Faltou {[...s.evaluation.missing].map((p) => solfegeName(p, accidental)).join(', ')}. </>}
         {s.evaluation.extra.size > 0 && <>Nota a mais: {[...s.evaluation.extra].map((p) => solfegeName(p, accidental)).join(', ')}.</>}
       </span>
+    ) : s.hint ? (
+      <span className="t-label inline-flex items-center gap-1 text-muted"><Lightbulb size={18} strokeWidth={1.75} aria-hidden /> {s.hint}</span>
     ) : (
       <span className="t-label text-muted">Segure as teclas do acorde</span>
     )
@@ -123,6 +131,8 @@ function ChordPractice() {
       </TimeRing>
 
       <div className={cn('min-h-7 text-center', s.state === 'wrong' && 'k-shake')} key={`${s.state}-${s.played.length}`}>{status}</div>
+
+      {s.answerText && <div className="t-label text-center text-success">Resposta: {s.answerText}</div>}
 
       <StaffCard notes={staff} accidental={accidental} empty="O acorde aparece na pauta" />
     </div>

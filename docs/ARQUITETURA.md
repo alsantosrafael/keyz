@@ -78,7 +78,7 @@ keyz/
 
 ## Estado, validação e persistência
 
-**Sessões** (`application/`): cada modo é uma classe com um `snapshot` e um `Emitter`. A UI assina pelo Zustand (`state/app.ts` cria as stores de ponte). Sessões não conhecem React.
+**Sessões** (`application/`): cada modo é uma classe com um `snapshot` e um `Emitter`. A UI assina pelo Zustand (`state/app.ts` cria as stores de ponte). Sessões não conhecem React. As sessões vivem durante todo o app e assinam o `InputHub`; por isso uma sessão que julga notas (`ChordSession`) só escuta enquanto a tela dela está aberta (`setActive`, chamado pelo componente). O Desafio já ignora notas fora da rodada.
 
 **Stores** (`state/`):
 
