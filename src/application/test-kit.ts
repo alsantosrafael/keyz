@@ -42,7 +42,8 @@ export class FakeTime implements Scheduler {
 
 export function fakeServices(time = new FakeTime()) {
   const log: string[] = []
-  const services: Pick<Services, 'piano' | 'feedback' | 'haptics' | 'storage' | 'scheduler' | 'clock'> = {
+  const services: Pick<Services, 'piano' | 'feedback' | 'haptics' | 'storage' | 'scheduler' | 'clock' | 'telemetry'> = {
+    telemetry: { record: (e) => log.push(`tel:${e.event}`) },
     piano: { noteOn: () => {}, noteOff: () => {}, chord: (m) => log.push(`chord:${m.join(',')}`), resume: async () => {}, setEnabled: () => {}, setVolume: () => {} },
     feedback: { cue: (k) => log.push(`cue:${k}`), setEnabled: () => {} },
     haptics: { vibrate: () => {}, enabled: true },

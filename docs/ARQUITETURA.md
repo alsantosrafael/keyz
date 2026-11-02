@@ -123,6 +123,18 @@ Qualquer pessoa, sem conta no GitHub, reporta um problema ou ideia em Ajustes �
 - **Endpoint** `functions/api/reportar.ts` (Cloudflare Pages Function): só `POST` do mesmo site, corpo ≤ 16 KB, valida com o mesmo schema, recusa a isca (`website`), neutraliza menções (`@`) e comentários HTML, e chama a API de Issues do GitHub com o token guardado como segredo do Cloudflare. Erros do GitHub viram mensagem genérica.
 - Os modelos de `.github/ISSUE_TEMPLATE` continuam existindo para quem abre issue direto no GitHub; manter os rótulos coerentes com o catálogo.
 
+## Observabilidade
+
+Detalhes, privacidade, cota e depuração em `docs/OBSERVABILIDADE.md`. Aqui, só a estrutura.
+
+- **Schema e sanitização** (`shared/src/telemetry`): `clientEventSchema` (Zod, formato `{ event, outcome, attrs }`) e `sanitizeTelemetryText`. Pura, sem DOM.
+- **Porta** `TelemetryPort` e `TelemetrySink` (`application/ports.ts`). Implementação em `application/telemetry.ts`: `ClientTelemetry` envia cada evento com fire and forget, até um teto de 5 por sessão. `SemTelemetria` entra quando há Sec-GPC ou Do Not Track (`platform/telemetry.ts`). O envio em si é `FetchSink`, com `keepalive`.
+- **Fontes de falha** ficam onde o erro existe: microfone e MIDI recebem a porta no construtor (`platform/microphone.ts`, `platform/midi.ts`). Armazenamento inválido é registrado em `state/app.ts` e `state/onboarding.ts`.
+- **Erros globais**: `installErrorHandlers` em `bootstrap.ts` (`error` e `unhandledrejection`). Erro de render: `ErrorBoundary` da biblioteca `react-error-boundary`, em `main.tsx`, com `onError` que registra e `fallback` com `ui/TelaDeRecuperacao.tsx`.
+- **Servidor**: `functions/_lib/log.ts` (`registrar`, uma linha JSON por chamada no `console`, sem amostragem; a versão vem do `package.json`). Endpoints `functions/api/reportar.ts` (`report.submit`) e `functions/api/eventos.ts` (um evento do navegador por requisição).
+- **Nomes fixos**: eventos, desfechos e motivos de recusa são constantes em `shared/src/telemetry` (`EVENTO`, `OUTCOME`, `MOTIVO`, `ORIGEM_ERRO`, `FONTE_ENTRADA`, `ETAPA_ENTRADA`). O schema do navegador sai dessas constantes.
+- Não há destino persistente: tudo vai para o tail do Pages.
+
 ## Build e deploy
 
 `bun run build` roda `tsc --noEmit` e `vite build`. O CI (`.github/workflows/ci.yml`) roda auditoria, testes, build e e2e em todo PR. Deploy automático só a partir da `main`, por Release (release-please + Cloudflare Pages). Detalhes em `docs/FLUXO.md` e `docs/PIPELINE.md`.

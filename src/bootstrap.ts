@@ -1,4 +1,5 @@
-import { OutputGate, type Services, gateFeedback, gatePiano, setServices } from './application'
+import { ORIGEM_ERRO } from '@keyz/shared'
+import { ClientTelemetry, OutputGate, SemTelemetria, type Services, type TelemetryPort, eventoDeErro, gateFeedback, gatePiano, setServices } from './application'
 import { WebFeedback } from './platform/feedback'
 import { WebHaptics } from './platform/haptics'
 import { WebMicrophone } from './platform/microphone'
@@ -6,12 +7,20 @@ import { WebMidi } from './platform/midi'
 import { WebReports } from './platform/report'
 import { SynthPiano } from './platform/piano'
 import { LocalStorageAdapter } from './platform/storage'
+import { FetchSink, pessoaPediuSemRastreio } from './platform/telemetry'
 import { getAudioContext } from './platform/audio'
 import { initApp, setMicrophone, useSettings } from './state/app'
 
 /** Raiz de composição: liga os adaptadores do navegador às portas de `application`. */
 export function bootstrap(): void {
   const clock = () => performance.now()
+  const scheduler: Services['scheduler'] = {
+    setTimeout: (fn, ms) => window.setTimeout(fn, ms),
+    clearTimeout: (id) => window.clearTimeout(id),
+    setInterval: (fn, ms) => window.setInterval(fn, ms),
+    clearInterval: (id) => window.clearInterval(id),
+  }
+  const telemetry = pessoaPediuSemRastreio() ? new SemTelemetria() : new ClientTelemetry({ sink: new FetchSink(), version: __APP_VERSION__ })
   const outputGate = new OutputGate(clock)
   const services: Services = {
     outputGate,
@@ -19,18 +28,15 @@ export function bootstrap(): void {
     feedback: gateFeedback(new WebFeedback(), outputGate),
     haptics: new WebHaptics(),
     storage: new LocalStorageAdapter(),
-    microphone: new WebMicrophone(),
-    midi: new WebMidi(),
+    microphone: new WebMicrophone(telemetry),
+    midi: new WebMidi(telemetry),
     reports: new WebReports(),
+    telemetry,
     clock,
-    scheduler: {
-      setTimeout: (fn, ms) => window.setTimeout(fn, ms),
-      clearTimeout: (id) => window.clearTimeout(id),
-      setInterval: (fn, ms) => window.setInterval(fn, ms),
-      clearInterval: (id) => window.clearInterval(id),
-    },
+    scheduler,
   }
   setServices(services)
+  installErrorHandlers(telemetry)
   initApp()
 
   // Cria o AudioContext (suspenso) em tempo ocioso: o primeiro toque só precisa retomá-lo.
@@ -54,4 +60,10 @@ export function bootstrap(): void {
   }
   window.addEventListener('pointerdown', onFirstGesture, true)
   window.addEventListener('keydown', onFirstGesture, true)
+}
+
+/** Erros globais não tratados viram `app.error`. */
+function installErrorHandlers(telemetry: TelemetryPort): void {
+  window.addEventListener('error', (e) => telemetry.record(eventoDeErro(ORIGEM_ERRO.windowError, e.error ?? e.message)))
+  window.addEventListener('unhandledrejection', (e) => telemetry.record(eventoDeErro(ORIGEM_ERRO.unhandledRejection, e.reason)))
 }

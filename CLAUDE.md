@@ -30,6 +30,7 @@ O app Swift original (`keyz-mac/`) **foi removido do repositório**. Continua no
 | `docs/PIPELINE.md` | Para CI/CD | **Sempre** que mudar qualquer workflow em `.github/` |
 | `docs/SEGURANCA.md` | Para cabeçalhos HTTP, CSP, workflows, ruleset e proteções | **Sempre** que mudar cabeçalho, workflow, ruleset ou proteção |
 | `docs/DEPLOY-SECRETS.md` | Para configurar segredos de deploy | Ao mudar a forma de configurar segredos |
+| `docs/OBSERVABILIDADE.md` | Antes de adicionar log, evento ou telemetria, e antes de depurar um erro de produção | Ao mudar eventos, atributos, teto de envios ou privacidade da telemetria |
 | `docs/SPEC.md` | **Só histórico** da migração Swift → web | Não atualizar. Está congelada |
 
 ## Comandos

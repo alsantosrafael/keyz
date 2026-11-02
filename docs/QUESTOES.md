@@ -15,6 +15,9 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 - [ ] **Acordes: avanço automático depois de acerto.** O Swift cancelava se a mão soltasse antes de 1,2 s; o web mantém o avanço. Confirmar que é a intenção.
 - [ ] **Piano**: síntese aditiva (atual, sem download) ou samples sob demanda (smplr)? A porta `PianoPort` isola a troca.
 - [ ] **Publicação**: site público (já no ar em `keyz-9ir.pages.dev`), PWA instalável (não feito) ou uso local?
+- [ ] **Telemetria técnica: opt-out em Ajustes.** Hoje só `Sec-GPC` e `Do Not Track` desligam o envio de erros técnicos. Decidir se entra um interruptor em Ajustes (ligado por padrão ou desligado) e o texto dele.
+- [ ] **Telemetria: política de privacidade pública.** O app ainda não tem página de privacidade. Antes de divulgar, escrever o que é enviado (ver `docs/OBSERVABILIDADE.md`).
+- [ ] **Anexar os últimos erros ao relatório de problema.** Ajudaria a triagem, mas o relatório vira público. Decidir se entra, e como mostrar à pessoa o que vai junto.
 
 ## Abertas: técnicas
 
@@ -24,6 +27,9 @@ Dúvidas de produto, técnicas e de validação. Doc durável, substituiu as se�
 - [ ] **Proteção da `main`**: `CLAUDE.md` afirma que a `main` só aceita PR por ruleset. Conferir no GitHub se o ruleset está ativo (a spec antiga dizia que não).
 - [ ] **Matriz de navegadores em CI**: definir quais versões mínimas de Chrome, Edge, Safari e Firefox.
 - [ ] **Axe no Playwright** e **PWA**: previstos como hardening, não feitos.
+- [ ] **Workers Logs em projeto Pages.** Confirmar se `[observability]` no `wrangler.toml` vale para Pages e qual a retenção real no free (a doc de Workers cita 3 dias). Hoje o tail ao vivo é a única fonte; sem histórico, depuração depende de reproduzir com o tail aberto. Ver `docs/OBSERVABILIDADE.md`.
+- [ ] **E2e do ErrorBoundary e da telemetria.** Forçar um erro de render e conferir a tela de recuperação; conferir que um erro de MIDI negado gera um único envio. Não cobertos hoje.
+- [ ] **Limite de criação de issues por `/api/reportar`.** Hoje não há teto nem deduplicação. Ver `docs/SEGURANCA.md` §1.5; o envio de telemetria já tem seus tetos no cliente.
 
 ## Decididas
 

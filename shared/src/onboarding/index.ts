@@ -37,6 +37,9 @@ export const onboardingSchema = z.object({
 export type OnboardingProgress = z.infer<typeof onboardingSchema>
 export const defaultOnboarding: OnboardingProgress = onboardingSchema.parse({})
 
+/** Diz se o dado salvo passa no schema (sem trocá-lo pelo padrão). Usado para registrar dado inválido. */
+export const onboardingValido = (raw: unknown): boolean => onboardingSchema.safeParse(raw).success
+
 /** Dado inválido no armazenamento cai no padrão, sem quebrar a tela. */
 export function parseOnboarding(raw: unknown): OnboardingProgress {
   const result = onboardingSchema.safeParse(raw)

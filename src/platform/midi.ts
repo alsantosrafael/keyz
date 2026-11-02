@@ -1,8 +1,12 @@
+import { ETAPA_ENTRADA, FONTE_ENTRADA } from '@keyz/shared'
 import { parseMidiMessage } from '@keyz/shared'
-import type { MidiPort, MidiStatus } from '../application/ports'
+import type { MidiPort, MidiStatus, TelemetryPort } from '../application/ports'
+import { eventoDeEntrada } from '../application/telemetry'
 
 /** Web MIDI (Chromium). Cada mensagem passa por Zod antes de chegar à aplicação. */
 export class WebMidi implements MidiPort {
+  constructor(private readonly telemetry?: TelemetryPort) {}
+
   readonly supported = typeof navigator !== 'undefined' && 'requestMIDIAccess' in navigator
   private noteListeners = new Set<Parameters<MidiPort['onNote']>[0]>()
   private deviceListeners = new Set<(names: string[]) => void>()
@@ -24,7 +28,8 @@ export class WebMidi implements MidiPort {
     if (!this.supported) return 'unsupported'
     try {
       this.access = await navigator.requestMIDIAccess({ sysex: false })
-    } catch {
+    } catch (erro) {
+      this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.midi, ETAPA_ENTRADA.request, erro instanceof Error ? erro.name : 'desconhecido'))
       return 'denied'
     }
     this.access.onstatechange = () => this.refresh()

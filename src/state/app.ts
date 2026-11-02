@@ -3,7 +3,8 @@ import {
   ChordSession, DrillSession, type Emitter, TutorialSession, FreeSession, InputHub, MicController, type MicSnapshot, connectSound, services,
   type ChordSnapshot, type DrillSnapshot, type FreeSnapshot,
 } from '../application'
-import { STORAGE_KEYS, type Settings, defaultSettings, parseSettings } from '@keyz/shared'
+import { STORAGE_KEYS, type Settings, defaultSettings, parseSettings, settingsSchema } from '@keyz/shared'
+import { eventoDeArmazenamentoInvalido } from '../application'
 import { bindOnboarding, tutorialActions, useOnboarding } from './onboarding'
 
 /** Instâncias de `application` vivas durante a sessão. Criadas uma vez em `initApp`. */
@@ -122,7 +123,9 @@ export const useMic = <T,>(select: (s: MicSnapshot) => T): T => micStore((s) => 
 export function initApp(): App {
   const svc = services()
   const hub = new InputHub(svc.clock)
-  const settings = parseSettings(svc.storage.read(STORAGE_KEYS.settings))
+  const salvo = svc.storage.read(STORAGE_KEYS.settings)
+  if (salvo !== undefined && !settingsSchema.safeParse(salvo).success) svc.telemetry.record(eventoDeArmazenamentoInvalido(STORAGE_KEYS.settings))
+  const settings = parseSettings(salvo)
   useSettings.setState({ settings })
 
   const mic = new MicController(hub, svc.microphone, svc.clock, svc.scheduler, svc.outputGate)
