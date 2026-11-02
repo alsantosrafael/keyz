@@ -14,7 +14,10 @@ const call = (body: unknown, init: { method?: string; origin?: string | null; en
   })
 }
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 
 describe('POST /api/reportar', () => {
   it('cria a issue e devolve o número, sem expor o token', async () => {
@@ -55,5 +58,62 @@ describe('POST /api/reportar', () => {
     const res = await call(report)
     expect(res.status).toBe(502)
     expect(JSON.stringify(await res.json())).not.toContain('credentials')
+  })
+
+  describe('log (uma linha por requisição)', () => {
+    const linhas = (spy: { mock: { calls: unknown[][] } }): Array<Record<string, any>> => spy.mock.calls.map((c) => JSON.parse(c[0] as string))
+
+    it('falha do GitHub registra erro com status e mensagem sanitizada, sem token nem título', async () => {
+      const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('fetch', vi.fn(async () => new Response('Bad credentials', { status: 401 })))
+      await call(report)
+      expect(err).toHaveBeenCalledTimes(1)
+      const [linha] = linhas(err)
+      expect(linha).toMatchObject({ evento: 'report.submit', outcome: 'error', status: 502, github_status: 401, github_mensagem: 'Bad credentials' })
+      expect(typeof linha.ts).toBe('string')
+      expect(JSON.stringify(linha)).not.toContain('segredo')
+      expect(JSON.stringify(linha)).not.toContain('Tecla trava')
+    })
+
+    it('falha de rede até o GitHub registra erro com o nome do erro', async () => {
+      const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('network down') }))
+      const res = await call(report)
+      expect(res.status).toBe(502)
+      expect(err).toHaveBeenCalledTimes(1)
+      expect(linhas(err)[0]).toMatchObject({ evento: 'report.submit', outcome: 'error', status: 502, github_erro: 'TypeError' })
+    })
+
+    it('rejeição registra uma linha de aviso com o motivo, sem o conteúdo do relatório', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('fetch', vi.fn())
+      await call(report, { origin: 'https://outro.site' })
+      await call({ ...report, website: 'spam' })
+      expect(linhas(log).map((e) => [e.evento, e.outcome, e.motivo, e.status])).toEqual([
+        ['report.submit', 'rejected', 'origin', 403],
+        ['report.submit', 'rejected', 'honeypot', 400],
+      ])
+      expect(err).not.toHaveBeenCalled()
+      expect(JSON.stringify(linhas(log))).not.toContain('Tecla trava')
+    })
+
+    it('configuração ausente registra erro (503 é falha do servidor)', async () => {
+      const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('fetch', vi.fn())
+      await call(report, { env: {} })
+      expect(linhas(err)[0]).toMatchObject({ evento: 'report.submit', outcome: 'error', motivo: 'config', status: 503 })
+    })
+
+    it('sucesso registra uma linha com o número da issue e o tipo, sem erro', async () => {
+      const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ number: 7 }), { status: 201 })))
+      await call(report)
+      expect(err).not.toHaveBeenCalled()
+      expect(linhas(log)).toHaveLength(1)
+      expect(linhas(log)[0]).toMatchObject({ evento: 'report.submit', outcome: 'ok', status: 200, issue: 7, type: 'bug' })
+      expect(JSON.stringify(linhas(log))).not.toContain('Tecla trava')
+    })
   })
 })

@@ -1,5 +1,7 @@
+import { ETAPA_ENTRADA, FONTE_ENTRADA } from '@keyz/shared'
 import type { MicFrame } from '@keyz/shared'
-import type { MicrophonePort, MicStartResult } from '../application/ports'
+import type { MicrophonePort, MicStartResult, TelemetryPort } from '../application/ports'
+import { eventoDeEntrada } from '../application/telemetry'
 import { getAudioContext, resumeAudio } from './audio'
 
 /** Microfone: getUserMedia sem filtros → AudioWorklet (10 ms) → Web Worker (YIN e chroma). */
@@ -11,6 +13,8 @@ export class WebMicrophone implements MicrophonePort {
   private source: MediaStreamAudioSourceNode | null = null
   private worker: Worker | null = null
   private sensitivity = 0.5
+
+  constructor(private readonly telemetry?: TelemetryPort) {}
 
   onFrame(cb: (f: MicFrame) => void): () => void {
     this.frameListeners.add(cb)
@@ -42,6 +46,7 @@ export class WebMicrophone implements MicrophonePort {
     } catch (error) {
       if (!current()) return cancelled
       const name = (error as DOMException).name
+      this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.request, name ?? 'desconhecido'))
       return { ok: false, reason: name === 'NotFoundError' ? 'no-device' : 'denied' }
     }
     if (!current()) {
@@ -57,6 +62,9 @@ export class WebMicrophone implements MicrophonePort {
       await ctx.audioWorklet.addModule(`${import.meta.env.BASE_URL}mic-worklet.js`)
       worker = new Worker(new URL('./mic.worker.ts', import.meta.url), { type: 'module' })
       worker.onmessage = (e: MessageEvent<MicFrame>) => this.frameListeners.forEach((l) => l(e.data))
+      // Erro no worker não tinha registro: agora sai como `input.failure` (o comportamento continua o mesmo).
+      worker.onerror = (e) => this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.worker, 'WorkerError', e.message))
+      worker.onmessageerror = () => this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.worker, 'MessageError'))
       const channel = new MessageChannel()
       worker.postMessage({ type: 'init', sampleRate: ctx.sampleRate, sensitivity: this.sensitivity, port: channel.port1 }, [channel.port1])
       node = new AudioWorkletNode(ctx, 'keyz-mic', { numberOfInputs: 1, numberOfOutputs: 0 })
@@ -69,7 +77,11 @@ export class WebMicrophone implements MicrophonePort {
       this.node = node
       this.source = source
       const track = stream.getAudioTracks()[0]
-      if (track) track.onended = () => this.lostListeners.forEach((l) => l())
+      if (track)
+        track.onended = () => {
+          this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.trackEnded, 'track.ended'))
+          this.lostListeners.forEach((l) => l())
+        }
       return { ok: true, deviceName: track?.label || null }
     } catch (error) {
       source?.disconnect()
@@ -78,7 +90,9 @@ export class WebMicrophone implements MicrophonePort {
       worker?.terminate()
       stream.getTracks().forEach((t) => t.stop())
       if (!current()) return cancelled
-      return { ok: false, reason: 'failed', message: error instanceof Error ? error.message : String(error) }
+      const mensagem = error instanceof Error ? error.message : String(error)
+      this.telemetry?.record(eventoDeEntrada(FONTE_ENTRADA.mic, ETAPA_ENTRADA.request, error instanceof Error ? error.name : 'desconhecido', mensagem))
+      return { ok: false, reason: 'failed', message: mensagem }
     }
   }
 

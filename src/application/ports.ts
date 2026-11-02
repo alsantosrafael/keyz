@@ -1,4 +1,4 @@
-import type { MicFrame, Report } from '@keyz/shared'
+import type { ClientEvent, MicFrame, Report } from '@keyz/shared'
 
 /** Portas que a camada `platform` implementa. `application` nunca importa o navegador. */
 export type Cue = 'correct' | 'wrong' | 'timeout' | 'star' | 'tick' | 'go' | 'milestone'
@@ -63,7 +63,18 @@ export interface ReportPort {
   submit(report: Report): Promise<ReportResult>
 }
 
+/** Registro de erros técnicos. Nunca recebe áudio, notas ou conteúdo do usuário. Ver `application/telemetry.ts`. */
+export interface TelemetryPort {
+  record(evento: ClientEvent): void
+}
+
+/** Envio de um evento ao servidor. Falha é silenciosa e não há retry: quem chama não lê resultado. */
+export interface TelemetrySink {
+  send(corpo: string): Promise<void>
+}
+
 export interface Services {
+  telemetry: TelemetryPort
   /** Portão de saída: o microfone ignora o que o próprio app está tocando (ver `output-gate.ts`). */
   outputGate?: import('./output-gate').OutputGate
   piano: PianoPort

@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import {
   type Chord, STORAGE_KEYS, TUTORIAL_STEPS, type OnboardingProgress, type TipMode, chordEquals, completeTutorial,
-  defaultOnboarding, parseOnboarding, resumeTutorial, restartTutorial, advanceTutorial, dismissPrompt, markTipSeen,
+  defaultOnboarding, parseOnboarding, resumeTutorial, restartTutorial, advanceTutorial, dismissPrompt, markTipSeen, onboardingValido,
 } from '@keyz/shared'
-import { type TutorialFeedback, type TutorialSession, services } from '../application'
+import { type TutorialFeedback, type TutorialSession, eventoDeArmazenamentoInvalido, services } from '../application'
 
 /**
  * Progresso do tutorial (localStorage, por navegador). Persistido a cada mudança: quem sai no
@@ -31,7 +31,9 @@ export const useOnboarding = create<OnboardingState>((set, get) => ({
   tutorialOpen: false,
   load: () => {
     try {
-      set({ progress: parseOnboarding(services().storage.read(STORAGE_KEYS.onboarding)) })
+      const salvo = services().storage.read(STORAGE_KEYS.onboarding)
+      if (salvo !== undefined && !onboardingValido(salvo)) services().telemetry.record(eventoDeArmazenamentoInvalido(STORAGE_KEYS.onboarding))
+      set({ progress: parseOnboarding(salvo) })
     } catch {
       /* sem serviços (testes de UI): padrão */
     }

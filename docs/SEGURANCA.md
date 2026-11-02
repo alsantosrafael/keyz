@@ -58,12 +58,13 @@ curl -sI https://keyz-9ir.pages.dev | grep -iE "content-security|strict-transpor
 
 ### 1.3 Dados e privacidade
 
-- Sem servidor próprio, banco de dados, contas, cookies ou analytics.
+- Sem banco de dados, contas, cookies ou analytics de uso.
+- **Diagnóstico técnico**: o app envia erros e falhas (`app.error`, `input.failure`, `storage.invalid`) para `POST /api/eventos`, no próprio domínio, no máximo 5 por sessão. Nunca vai áudio, notas, nome de dispositivo, contato, texto digitado nem identificador de pessoa; URLs e sequências longas de dígitos são removidas. `Sec-GPC` e `Do Not Track` desligam esse envio. Detalhes em `docs/OBSERVABILIDADE.md`.
 - O único armazenamento é o `localStorage` (ajustes e melhores marcas). Tudo que é lido de lá passa por validação com Zod e, se for inválido, cai no padrão (`shared/src/schemas`).
 - Mensagens MIDI também passam por validação Zod antes de chegarem à aplicação.
 - O microfone só liga depois de um gesto do usuário e de uma explicação; o áudio é analisado no aparelho (AudioWorklet + Web Worker) e nunca é enviado.
 - Zero dependência de rede em tempo de execução: nenhuma fonte, CDN ou script externo (por isso `connect-src 'self'`).
-- **Exceção única, por ação explícita**: o relatório de problema. Só sai quando a pessoa clica em "Enviar", depois de ver o contexto anexado, e vai para `POST /api/reportar` no próprio domínio (`connect-src 'self'` basta). Nunca inclui áudio, notas tocadas ou ajustes além de tema e tamanho da tela. A issue resultante é pública.
+- **Exceções**: o relatório de problema, por ação explícita. Só sai quando a pessoa clica em "Enviar", depois de ver o contexto anexado, e vai para `POST /api/reportar` no próprio domínio (`connect-src 'self'` basta). Nunca inclui áudio, notas tocadas ou ajustes além de tema e tamanho da tela. A issue resultante é pública. E o diagnóstico técnico descrito acima.
 
 ### 1.5 Endpoint de relatórios — `functions/api/reportar.ts`
 
@@ -71,7 +72,8 @@ Cria issues no repositório em nome do app, então é a única superfície com e
 
 - **Token**: fine-grained, só no repositório `keyz`, só permissão *Issues: Read and write*. Segredo do Cloudflare Pages (`GITHUB_TOKEN`), nunca no GitHub Actions, no código nem no navegador. O repositório vem de `GITHUB_REPO`.
 - **Entrada**: só `POST` com `Origin` igual ao do site, corpo ≤ 16 KB, schema Zod do catálogo, campos com tamanho máximo, tipo e campos desconhecidos recusados, isca contra robôs.
-- **Saída**: menções (`@usuario`) e comentários HTML são neutralizados; o conteúdo entra como texto. Falha do GitHub vira mensagem genérica (sem vazar detalhe).
+- **Saída**: menções (`@usuario`) e comentários HTML são neutralizados; o conteúdo entra como texto. Falha do GitHub vira mensagem genérica para quem envia (sem vazar detalhe). O detalhe vai só para o log do servidor, sanitizado e truncado, e nunca inclui o token.
+- **Log**: um evento `report.submit` por requisição, sem o conteúdo do relatório (`docs/OBSERVABILIDADE.md`).
 - **Limite de taxa: opcional, depende do plano.** O endpoint em si **não limita requisições**; isso é feito (se for possível) na Cloudflare, e hoje não há garantia de que seja:
   - O plano grátis inclui 1 regra de *Rate limiting* (*Security › WAF › Rate limiting rules*), mas, segundo fontes não oficiais, só com janela de 10 segundos. Dá para limitar rajadas (ex.: 3 requisições por 10 s por IP em `POST /api/reportar`), não volume ao longo de minutos. Conferir os limites no painel.
   - Regras de WAF parecem valer só para **domínio próprio** na Cloudflare, não para `*.pages.dev`. Sem domínio próprio, esta regra provavelmente não pode ser criada.
