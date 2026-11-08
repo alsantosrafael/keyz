@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@playwright/test": "latest",
-    "@tailwindcss/vite": "^4.0.0",
+    "@tailwindcss/vite": "^4.3.4",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@types/node": "^26.6.6",
@@ -39,7 +39,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "latest",
     "jsdom": "latest",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.3.4",
     "typescript": "^7.0.2",
     "vite": "latest",
     "vitest": "latest"
